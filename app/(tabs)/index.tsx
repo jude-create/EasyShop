@@ -1,98 +1,130 @@
-import { Image } from 'expo-image';
-import { Platform, StyleSheet } from 'react-native';
-
-import { HelloWave } from '@/components/hello-wave';
-import ParallaxScrollView from '@/components/parallax-scroll-view';
-import { ThemedText } from '@/components/themed-text';
-import { ThemedView } from '@/components/themed-view';
 import { Link } from 'expo-router';
+import { ScrollView, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import ServiceCard from '../components/ServiceCard';
+import ProductCard from '../components/ProductCard';
+import { useRouter } from "expo-router";
+import Feather from '@expo/vector-icons/Feather';
+import Ionicons from '@expo/vector-icons/Ionicons';
+import Fontisto from '@expo/vector-icons/Fontisto';
+import { Product } from './products';
 
 export default function HomeScreen() {
-  return (
-    <ParallaxScrollView
-      headerBackgroundColor={{ light: '#A1CEDC', dark: '#1D3D47' }}
-      headerImage={
-        <Image
-          source={require('@/assets/images/partial-react-logo.png')}
-          style={styles.reactLogo}
-        />
-      }>
-      <ThemedView style={styles.titleContainer}>
-        <ThemedText type="title">Welcome!</ThemedText>
-        <HelloWave />
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 1: Try it</ThemedText>
-        <ThemedText>
-          Edit <ThemedText type="defaultSemiBold">app/(tabs)/index.tsx</ThemedText> to see changes.
-          Press{' '}
-          <ThemedText type="defaultSemiBold">
-            {Platform.select({
-              ios: 'cmd + d',
-              android: 'cmd + m',
-              web: 'F12',
-            })}
-          </ThemedText>{' '}
-          to open developer tools.
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <Link href="/modal">
-          <Link.Trigger>
-            <ThemedText type="subtitle">Step 2: Explore</ThemedText>
-          </Link.Trigger>
-          <Link.Preview />
-          <Link.Menu>
-            <Link.MenuAction title="Action" icon="cube" onPress={() => alert('Action pressed')} />
-            <Link.MenuAction
-              title="Share"
-              icon="square.and.arrow.up"
-              onPress={() => alert('Share pressed')}
-            />
-            <Link.Menu title="More" icon="ellipsis">
-              <Link.MenuAction
-                title="Delete"
-                icon="trash"
-                destructive
-                onPress={() => alert('Delete pressed')}
-              />
-            </Link.Menu>
-          </Link.Menu>
-        </Link>
+  const router = useRouter();
 
-        <ThemedText>
-          {`Tap the Explore tab to learn more about what's included in this starter app.`}
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 3: Get a fresh start</ThemedText>
-        <ThemedText>
-          {`When you're ready, run `}
-          <ThemedText type="defaultSemiBold">npm run reset-project</ThemedText> to get a fresh{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> directory. This will move the current{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> to{' '}
-          <ThemedText type="defaultSemiBold">app-example</ThemedText>.
-        </ThemedText>
-      </ThemedView>
-    </ParallaxScrollView>
+  // Define featured products
+  const featuredProducts: Product[] = [
+    {
+      id: 1,
+      emoji: '📱',
+      name: 'Samsung Galaxy S23',
+      description: 'Latest Samsung flagship smartphone',
+      price: '₦450,000'
+    },
+    {
+      id: 2,
+      emoji: '💻',
+      name: 'Dell XPS 13 Laptop',
+      description: 'Powerful laptop with 11th Gen Intel',
+      price: '₦750,000'
+    },
+    {
+      id: 3,
+      emoji: '🎧',
+      name: 'Sony WH-1000XM4',
+      description: 'Premium noise-cancelling headphones',
+      price: '₦180,000'
+    },
+    {
+      id: 4,
+      emoji: '👟',
+      name: 'Nike Air Max',
+      description: 'Comfortable running shoes',
+      price: '₦65,000'
+    }
+  ];
+
+  return (
+    <SafeAreaView className="h-screen bg-blue-600">
+      <View className='bg-gray-50 flex-1'>
+        <ScrollView
+          showsVerticalScrollIndicator={false}
+          contentContainerStyle={{ paddingBottom: 50 }}
+        >
+          {/* Header Section */}
+          <View className="bg-blue-600 p-6 items-center">
+            <Text className="text-3xl font-bold text-white mb-2">CW RETAIL</Text>
+            <Text className="text-sm text-white text-center opacity-90">
+              Complete e-commerce and Point of Sale solution for modern retail
+            </Text>
+          </View>
+
+          {/* Search Bar */}
+          <View className="flex-row items-center bg-white mx-4 my-4 p-3 rounded-lg shadow-sm">
+            <Feather name="search" size={22} color="black" />
+            <TextInput
+              placeholder="Search products..."
+              className="flex-1 text-base"
+              placeholderTextColor="#9ca3af"
+            />
+          </View>
+
+          {/* Quick Action Buttons */}
+          <View className="flex-row px-4 gap-3">
+            <TouchableOpacity
+              className="flex-1 bg-blue-600 p-5 rounded-xl items-center"
+              onPress={() => router.push("/(tabs)")}
+            >
+              <Fontisto name="shopping-bag-1" size={40} color="#ffffff" />
+              <Text className="text-white font-bold">Shop Online</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              className="flex-1 bg-green-600 p-5  rounded-xl items-center"
+              onPress={() => router.push("/(tabs)/products")}
+            >
+              <Ionicons name="settings" size={40} color="#6b7280" />
+              <Text className="text-white font-bold">Admin Portal</Text>
+            </TouchableOpacity>
+          </View>
+
+          {/* Service Cards */}
+          <View className="px-4 mt-6">
+           <ServiceCard
+  icon="cart-outline"
+  color="#2563eb"   
+  title="Online Store"
+  description="Full-featured e-commerce with cart, checkout, and order management"
+/>
+
+<ServiceCard
+  icon="laptop-outline"
+  color="#16a34a"  
+  title="POS Terminal"
+  description="Professional point-of-sale system for in-store transactions"
+/>
+
+<ServiceCard
+  icon="storefront-outline"
+  color="purple"   
+  title="Admin Dashboard"
+  description="Management tools for inventory, sales, and analytics"
+/>
+
+          </View>
+
+          {/* Featured Products Section */}
+          <Text className="text-xl font-bold px-4 pt-6 pb-3">
+            Featured Products
+          </Text>
+
+          {featuredProducts.map((product) => (
+            <ProductCard key={product.id} product={product} />
+          ))}
+
+          <View className="h-6" />
+        </ScrollView>
+      </View>
+    </SafeAreaView>
   );
 }
-
-const styles = StyleSheet.create({
-  titleContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-  },
-  stepContainer: {
-    gap: 8,
-    marginBottom: 8,
-  },
-  reactLogo: {
-    height: 178,
-    width: 290,
-    bottom: 0,
-    left: 0,
-    position: 'absolute',
-  },
-});
