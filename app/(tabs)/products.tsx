@@ -1,96 +1,105 @@
-// app/products.tsx
-import { View, Text, ScrollView, TextInput, TouchableOpacity } from "react-native";
-import React from "react";
-import { SafeAreaView } from "react-native-safe-area-context";
-import { useRouter } from "expo-router";
-import { useCart } from "../context/CartContext";
-import Feather from '@expo/vector-icons/Feather';
+import { ScrollView, Text, View, Alert, Platform, ToastAndroid } from 'react-native';
+import { useState, useMemo } from 'react';
+import { useRouter } from 'expo-router';
+import { useCart } from '../context/CartContext';
+import { useTheme } from '../context/ThemeContext';
+import { useWishlist } from '../context/WishlistContext';
+import { PRODUCTS, CATEGORIES } from '../constants/products';
+import TabShell from '../components/tabs/TabShell';
+import SearchHeader from '../components/tabs/SearchHeader';
+import CategoryChips from '../components/tabs/CategoryChips';
+import TabEmptyState from '../components/tabs/TabEmptyState';
+import ProductTile from '../components/tabs/ProductTile';
+import Ionicons from '@expo/vector-icons/Ionicons';
 
-export interface Product {
-  id: number;
-  emoji: string;
-  name: string;
-  price: string;
-  description?: string;
+function showToast(msg: string) {
+  if (Platform.OS === 'android') {
+    ToastAndroid.show(msg, ToastAndroid.SHORT);
+  } else {
+    Alert.alert('Added to Cart', msg, [{ text: 'OK' }]);
+  }
 }
 
-export default function Products() {
-  const { addToCart } = useCart();
+export default function ProductsScreen() {
   const router = useRouter();
+  const { addToCart } = useCart();
+  const { colors, isDark } = useTheme();
+  const { toggleWishlist, isWishlisted } = useWishlist();
+  const [search, setSearch] = useState('');
+  const [activeCategory, setActiveCategory] = useState('All');
 
-  const products: Product[] = [
-    { id: 1, emoji: "📱", name: "Samsung Galaxy S23", price: "₦450,000" },
-    { id: 2, emoji: "💻", name: "Dell XPS 13", price: "₦750,000" },
-    { id: 3, emoji: "🎧", name: "Sony WH-1000XM4", price: "₦180,000" },
-    { id: 4, emoji: "👟", name: "Nike Air Max", price: "₦65,000" },
-    { id: 5, emoji: "⌚", name: "Apple Watch S9", price: "₦250,000" },
-    { id: 6, emoji: "📷", name: "Canon EOS R6", price: "₦350,000" },
-    { id: 7, emoji: "🎮", name: "PS5 Console", price: "₦420,000" },
-    { id: 8, emoji: "📺", name: "LG OLED TV", price: "₦950,000" },
-  ];
-
-  const handleProductPress = (product: Product) => {
-    router.push({
-      pathname: `/product/${product.id}`,
-      params: { product: JSON.stringify(product) },
+  const filtered = useMemo(() => {
+    return PRODUCTS.filter((product) => {
+      const query = search.toLowerCase();
+      const matchesSearch =
+        product.name.toLowerCase().includes(query) ||
+        product.category.toLowerCase().includes(query);
+      const matchesCategory = activeCategory === 'All' || product.category === activeCategory;
+      return matchesSearch && matchesCategory;
     });
-  };
-
- const handleAddToCart = (product: Product) => {
-    addToCart(product);
-  };
+  }, [search, activeCategory]);
 
   return (
-    <SafeAreaView className="h-screen bg-blue-600">
-      <ScrollView className="bg-gray-50 flex-1 mb-10">
+    <TabShell backgroundColor={colors.primary} contentBackgroundColor={colors.background}>
+      <SearchHeader
+        colors={colors}
+        title="Products"
+        value={search}
+        onChangeText={setSearch}
+        onClear={() => setSearch('')}
+      />
 
-        {/* Search Bar */}
-        <View className="flex-row items-center bg-white mx-4 my-4 p-2 rounded-lg shadow-sm">
-           <Feather name="search" size={22} color="black" />
-          <TextInput
-            placeholder="Search products..."
-            className="flex-1 text-base"
-            placeholderTextColor="#9ca3af"
+      <CategoryChips
+        colors={colors}
+        categories={CATEGORIES}
+        activeCategory={activeCategory}
+        onSelect={setActiveCategory}
+      />
+
+      <View style={{ paddingHorizontal: 16, paddingTop: 4, paddingBottom: 4 }}>
+        <Text style={{ fontSize: 12, color: colors.textMuted, fontWeight: '500' }}>
+          {filtered.length} {filtered.length === 1 ? 'product' : 'products'} found
+        </Text>
+      </View>
+
+      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingHorizontal: 12, paddingBottom: 24 }}>
+        {filtered.length === 0 ? (
+          <TabEmptyState
+            colors={colors}
+            icon={<Ionicons name="search-outline" size={48} color={colors.textMuted} />}
+            title="No products found"
+            description="Try a different search or category"
+            actionLabel="Clear Search"
+            onActionPress={() => {
+              setSearch('');
+              setActiveCategory('All');
+            }}
           />
-        </View>
-
-        {/* Products Grid */}
-        <View className="flex-row flex-wrap px-2">
-          {products.map((product) => (
-            <View key={product.id} className="w-1/2 p-2">
-              <TouchableOpacity
-                className="bg-white rounded-xl p-3 shadow-sm"
-                onPress={() => handleProductPress(product)}
-                activeOpacity={0.7}
-              >
-                <View className="aspect-square bg-gray-100 rounded-xl justify-center items-center mb-3">
-                  <Text className="text-5xl">{product.emoji}</Text>
-                </View>
-
-                <Text className="font-bold text-sm mb-1" numberOfLines={2}>
-                  {product.name}
-                </Text>
-
-                <Text className="text-blue-600 font-bold text-base mb-2">
-                  {product.price}
-                </Text>
-
-                <TouchableOpacity
-                  className="bg-blue-600 py-2 rounded-lg"
-                  onPress={() => handleAddToCart(product)}
-                >
-                  <Text className="text-white font-bold text-xs text-center">
-                    Add to Cart
-                  </Text>
-                </TouchableOpacity>
-
-              </TouchableOpacity>
-            </View>
-          ))}
-        </View>
-
-        <View className="h-6" />
+        ) : (
+          <View style={{ flexDirection: 'row', flexWrap: 'wrap' }}>
+            {filtered.map((product) => (
+              <ProductTile
+                key={product.id}
+                product={product}
+                colors={colors}
+                isDark={isDark}
+                wishlisted={isWishlisted(product.id)}
+                onPress={() =>
+                  router.push({
+                    pathname: '/product/[id]',
+                    params: { id: product.id, product: JSON.stringify(product) },
+                  })
+                }
+                onToggleWishlist={() => toggleWishlist(product)}
+                onAddToCart={() => {
+                  addToCart(product);
+                  showToast(`${product.name} added to cart`);
+                }}
+              />
+            ))}
+          </View>
+        )}
       </ScrollView>
-    </SafeAreaView>
+    </TabShell>
   );
 }
