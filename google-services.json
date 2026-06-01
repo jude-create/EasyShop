@@ -1,0 +1,54 @@
+{
+  "project_info": {
+    "project_number": "923705482814",
+    "project_id": "jujora-ca905",
+    "storage_bucket": "jujora-ca905.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:923705482814:android:fd75034e8bc8d0ea59fb6f",
+        "android_client_info": {
+          "package_name": "com.anonymous.EasyShopPOS"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "923705482814-gpapt2e84theh0vbgl078uqtvmk0tnnd.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.anonymous.EasyShopPOS",
+            "certificate_hash": "ba678b3fc2208147b8c2e225ba33119996f883cd"
+          }
+        },
+        {
+          "client_id": "923705482814-r6f9e01j78olmf7kvr1fqu03lpgoigi4.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCH_CgAOE4PGxQqVvvwaTsiOF1N44XL36M"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "923705482814-r6f9e01j78olmf7kvr1fqu03lpgoigi4.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "923705482814-25s5u2gbc9u29nefplmf3ljc26afbt5t.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.anonymous.EasyShopPOS"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
