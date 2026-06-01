@@ -1,15 +1,15 @@
 import { ScrollView, Text, View } from 'react-native';
 import { useRouter } from 'expo-router';
 import Ionicons from '@expo/vector-icons/Ionicons';
-import { useTheme } from '../context/ThemeContext';
-import { useCart } from '../context/CartContext';
-import { useWishlist } from '../context/WishlistContext';
-import { PRODUCTS } from '../constants/products';
-import TabShell from '../components/tabs/TabShell';
-import TabSectionTitle from '../components/tabs/TabSectionTitle';
-import QuickActionCard from '../components/tabs/QuickActionCard';
-import ServiceListItem from '../components/tabs/ServiceListItem';
-import ProductTile from '../components/tabs/ProductTile';
+import { useTheme } from '../../context/ThemeContext';
+import { useCart } from '../../context/CartContext';
+import { useWishlist } from '../../context/WishlistContext';
+import { PRODUCTS } from '../../constants/products';
+import TabShell from '../../components/tabs/TabShell';
+import TabSectionTitle from '../../components/tabs/TabSectionTitle';
+import QuickActionCard from '../../components/tabs/QuickActionCard';
+import ServiceListItem from '../../components/tabs/ServiceListItem';
+import ProductTile from '../../components/tabs/ProductTile';
 
 const SERVICES = [
   {

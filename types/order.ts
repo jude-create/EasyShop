@@ -5,7 +5,7 @@ export type OrderStatus =
   | 'Cancelled';
 
 export interface OrderItem {
-  emoji: string;
+  image: string;
   name: string;
   qty: number;
   price: number;

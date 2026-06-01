@@ -3,14 +3,14 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { useState } from 'react';
 import * as ImagePicker from 'expo-image-picker';
-import { useTheme } from './context/ThemeContext';
+import { useTheme } from '../../context/ThemeContext';
 import {
   ProfileScreenHeader,
   ProfileAvatarPicker,
   ProfileSectionTitle,
   ProfileInputField,
   ProfileSaveButton,
-} from './components/profile';
+} from '../../components/profile';
 
 type ProfileForm = {
   firstName: string;

@@ -8,23 +8,24 @@ import {
   KeyboardAvoidingView,
   Platform,
   ActivityIndicator,
+  Image,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { useState } from 'react';
 import Ionicons from '@expo/vector-icons/Ionicons';
-import { useTheme } from './context/ThemeContext';
-import { useReviews, Review } from './context/ReviewContext';
-import { PRODUCTS } from './constants/products';
+import { useTheme } from '../../context/ThemeContext';
+import { useReviews, Review } from '../../context/ReviewContext';
+
 
 type FilterType = 'All' | '5' | '4' | '3' | '2' | '1';
 
 // Products from delivered orders available to review
 const REVIEWABLE_PRODUCTS = [
-  { productId: 1,  productName: 'Samsung Galaxy S23',  productEmoji: '📱', orderId: 'CWR-482910' },
-  { productId: 3,  productName: 'Sony WH-1000XM4',     productEmoji: '🎧', orderId: 'CWR-482910' },
-  { productId: 2,  productName: 'Dell XPS 13 Laptop',  productEmoji: '💻', orderId: 'CWR-371845' },
-  { productId: 7,  productName: 'PlayStation 5',        productEmoji: '🎮', orderId: 'CWR-183920' },
+  { productId: 1,  productName: 'Samsung Galaxy S23',   productImage: require('../../assets/images/samsung.jpg'), orderId: 'CWR-482910' },
+  { productId: 3,  productName: 'Sony WH-1000XM4',     productImage: require('../../assets/images/headphone.jpg'), orderId: 'CWR-482910' },
+  { productId: 2,  productName: 'Dell XPS 13 Laptop',  productImage: require('../../assets/images/laptop.jpg'), orderId: 'CWR-371845' },
+  { productId: 7,  productName: 'PlayStation 5',        productImage: require('../../assets/images/pad.jpg'), orderId: 'CWR-183920' },
 ];
 
 function StarRow({ rating, onRate, size = 24 }: { rating: number; onRate?: (r: number) => void; size?: number }) {
@@ -91,7 +92,7 @@ export default function ReviewsScreen() {
     addReview({
       productId: selectedProduct.productId,
       productName: selectedProduct.productName,
-      productEmoji: selectedProduct.productEmoji,
+      productImage: selectedProduct.productImage,
       rating,
       comment: comment.trim() || 'No comment provided.',
       orderId: selectedProduct.orderId,
@@ -157,7 +158,11 @@ export default function ReviewsScreen() {
                   activeOpacity={0.85}
                 >
                   <View style={{ width: 44, height: 44, borderRadius: 12, backgroundColor: colors.subtle, alignItems: 'center', justifyContent: 'center' }}>
-                    <Text style={{ fontSize: 22 }}>{p.productEmoji}</Text>
+                    <Image
+                      source={p.productImage}
+                      style={{ width: '100%', height: '100%' }}
+                      resizeMode="contain"
+                    />
                   </View>
                   <View style={{ flex: 1 }}>
                     <Text style={{ fontSize: 13, fontWeight: '600', color: colors.text }}>{p.productName}</Text>
@@ -218,7 +223,11 @@ export default function ReviewsScreen() {
                 {/* Product row */}
                 <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, marginBottom: 10 }}>
                   <View style={{ width: 42, height: 42, borderRadius: 11, backgroundColor: colors.subtle, alignItems: 'center', justifyContent: 'center' }}>
-                    <Text style={{ fontSize: 20 }}>{review.productEmoji}</Text>
+                         <Image
+    source={typeof review.productImage === 'string' ? { uri: review.productImage } : review.productImage}
+    style={{ width: 36, height: 36, borderRadius: 9 }}
+    resizeMode="contain"
+  />
                   </View>
                   <View style={{ flex: 1 }}>
                     <Text style={{ fontSize: 13, fontWeight: '700', color: colors.text }}>{review.productName}</Text>
@@ -276,7 +285,11 @@ export default function ReviewsScreen() {
                         style={{ flexDirection: 'row', alignItems: 'center', gap: 8, paddingHorizontal: 12, paddingVertical: 8, borderRadius: 12, backgroundColor: selectedProduct.productId === p.productId ? colors.primaryLight : colors.subtle, borderWidth: 1.5, borderColor: selectedProduct.productId === p.productId ? colors.primary : 'transparent' }}
                         activeOpacity={0.8}
                       >
-                        <Text style={{ fontSize: 18 }}>{p.productEmoji}</Text>
+                        <Image
+                          source={p.productImage}
+                          style={{ width: 36, height: 36 }}
+                          resizeMode="contain"
+                        />
                         <Text style={{ fontSize: 12, fontWeight: '600', color: selectedProduct.productId === p.productId ? colors.primary : colors.text }}>{p.productName}</Text>
                       </TouchableOpacity>
                     ))}
@@ -287,7 +300,11 @@ export default function ReviewsScreen() {
               {/* Selected product display */}
               <View style={{ backgroundColor: colors.card, borderRadius: 14, padding: 14, flexDirection: 'row', alignItems: 'center', gap: 12, borderWidth: 0.5, borderColor: colors.border }}>
                 <View style={{ width: 52, height: 52, borderRadius: 13, backgroundColor: colors.subtle, alignItems: 'center', justifyContent: 'center' }}>
-                  <Text style={{ fontSize: 26 }}>{selectedProduct.productEmoji}</Text>
+                  <Image
+                    source={selectedProduct.productImage}
+                    style={{ width: '100%', height: '100%' }}
+                    resizeMode="contain"
+                  />
                 </View>
                 <View>
                   <Text style={{ fontSize: 14, fontWeight: '700', color: colors.text }}>{selectedProduct.productName}</Text>

@@ -1,15 +1,15 @@
 import { ScrollView, Text, View, Alert, Platform, ToastAndroid } from 'react-native';
 import { useState, useMemo } from 'react';
 import { useRouter } from 'expo-router';
-import { useCart } from '../context/CartContext';
-import { useTheme } from '../context/ThemeContext';
-import { useWishlist } from '../context/WishlistContext';
-import { PRODUCTS, CATEGORIES } from '../constants/products';
-import TabShell from '../components/tabs/TabShell';
-import SearchHeader from '../components/tabs/SearchHeader';
-import CategoryChips from '../components/tabs/CategoryChips';
-import TabEmptyState from '../components/tabs/TabEmptyState';
-import ProductTile from '../components/tabs/ProductTile';
+import { useCart } from '../../context/CartContext';
+import { useTheme } from '../../context/ThemeContext';
+import { useWishlist } from '../../context/WishlistContext';
+import { PRODUCTS, CATEGORIES } from '../../constants/products';
+import TabShell from '../../components/tabs/TabShell';
+import SearchHeader from '../../components/tabs/SearchHeader';
+import CategoryChips from '../../components/tabs/CategoryChips';
+import TabEmptyState from '../../components/tabs/TabEmptyState';
+import ProductTile from '../../components/tabs/ProductTile';
 import Ionicons from '@expo/vector-icons/Ionicons';
 
 function showToast(msg: string) {

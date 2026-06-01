@@ -1,14 +1,14 @@
 import { Alert, Platform, ScrollView, Text, TouchableOpacity, View, ToastAndroid } from 'react-native';
 import { useRouter } from 'expo-router';
-import { useWishlist } from '../context/WishlistContext';
-import { useCart } from '../context/CartContext';
-import { useTheme } from '../context/ThemeContext';
-import { Product, formatPrice } from '../constants/products';
-import TabShell from '../components/tabs/TabShell';
-import TabEmptyState from '../components/tabs/TabEmptyState';
-import WishlistItemCard from '../components/tabs/WishlistItemCard';
-import TabCard from '../components/tabs/TabCard';
-import PrimaryActionButton from '../components/tabs/PrimaryActionButton';
+import { useWishlist } from '../../context/WishlistContext';
+import { useCart } from '../../context/CartContext';
+import { useTheme } from '../../context/ThemeContext';
+import { Product, formatPrice } from '../../constants/products';
+import TabShell from '../../components/tabs/TabShell';
+import TabEmptyState from '../../components/tabs/TabEmptyState';
+import WishlistItemCard from '../../components/tabs/WishlistItemCard';
+import TabCard from '../../components/tabs/TabCard';
+import PrimaryActionButton from '../../components/tabs/PrimaryActionButton';
 import Ionicons from '@expo/vector-icons/Ionicons';
 
 function showToast(msg: string) {

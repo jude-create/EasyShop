@@ -25,7 +25,7 @@ export default function ReviewItemRow({ item, colors, showDivider }: ReviewItemR
         borderBottomColor: colors.border,
       }}
     >
-      <Text style={{ fontSize: 22 }}>{item.emoji}</Text>
+      <Text style={{ fontSize: 22 }}>{item.image}</Text>
       <View style={{ flex: 1 }}>
         <Text style={{ fontSize: 13, fontWeight: '500', color: colors.text }} numberOfLines={1}>
           {item.name}

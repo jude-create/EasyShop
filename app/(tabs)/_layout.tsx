@@ -1,9 +1,9 @@
 import { Tabs } from 'expo-router';
 import { View, Text, Platform } from 'react-native';
 import Ionicons from '@expo/vector-icons/Ionicons';
-import { useCart } from '../context/CartContext';
-import { useWishlist } from '../context/WishlistContext';
-import { useTheme } from '../context/ThemeContext';
+import { useCart } from '../../context/CartContext';
+import { useWishlist } from '../../context/WishlistContext';
+import { useTheme } from '../../context/ThemeContext';
 
 function CartTabIcon({ color, focused }: { color: string; focused: boolean }) {
   const { totalItems } = useCart();
@@ -66,6 +66,7 @@ export default function TabsLayout() {
           tabBarIcon: ({ color, focused }) => (
             <Ionicons name={focused ? 'home' : 'home-outline'} size={24} color={color} />
           ),
+          
         }}
       />
       <Tabs.Screen

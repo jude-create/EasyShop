@@ -1,4 +1,4 @@
-import { Text, TouchableOpacity, View } from 'react-native';
+import { Image, Text, TouchableOpacity, View } from 'react-native';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { Order } from '../../types/order';
 import { formatPrice } from '../../constants/products';
@@ -72,7 +72,11 @@ export default function FlowOrderCard({
                 justifyContent: 'center',
               }}
             >
-              <Text style={{ fontSize: 18 }}>{item.emoji}</Text>
+               <Image
+    source={typeof item.image === 'string' ? { uri: item.image } : item.image}
+    style={{ width: 36, height: 36, borderRadius: 9 }}
+    resizeMode="contain"
+  />
             </View>
             <View style={{ flex: 1 }}>
               <Text style={{ fontSize: 12, fontWeight: '500', color: colors.text }} numberOfLines={1}>

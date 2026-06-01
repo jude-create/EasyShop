@@ -1,13 +1,13 @@
 import { Alert, ScrollView, Text, TouchableOpacity, View } from 'react-native';
 import { useRouter } from 'expo-router';
 import Ionicons from '@expo/vector-icons/Ionicons';
-import { useTheme } from '../context/ThemeContext';
-import { useCart } from '../context/CartContext';
-import TabShell from '../components/tabs/TabShell';
-import ProfileHero from '../components/tabs/ProfileHero';
-import StatsStrip from '../components/tabs/StatsStrip';
-import ThemeSwitcher from '../components/tabs/ThemeSwitcher';
-import MenuSection from '../components/tabs/MenuSection';
+import { useTheme } from '../../context/ThemeContext';
+import { useCart } from '../../context/CartContext';
+import TabShell from '../../components/tabs/TabShell';
+import ProfileHero from '../../components/tabs/ProfileHero';
+import StatsStrip from '../../components/tabs/StatsStrip';
+import ThemeSwitcher from '../../components/tabs/ThemeSwitcher';
+import MenuSection from '../../components/tabs/MenuSection';
 
 
 const MENU_SECTIONS = [

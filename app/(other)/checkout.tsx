@@ -2,14 +2,14 @@ import { ActivityIndicator, KeyboardAvoidingView, Platform, ScrollView, Text, To
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { useState } from 'react';
-import { useCart } from './context/CartContext';
-import { useTheme } from './context/ThemeContext';
-import { formatPrice } from './constants/products';
-import FlowScreenHeader from './components/flow/FlowScreenHeader';
-import FlowStepper from './components/flow/FlowStepper';
-import CheckoutDeliveryStep from './components/flow/CheckoutDeliveryStep';
-import CheckoutPaymentStep, { PayMethod } from './components/flow/CheckoutPaymentStep';
-import CheckoutReviewStep from './components/flow/CheckoutReviewStep';
+import { useCart } from '../../context/CartContext';
+import { useTheme } from '../../context/ThemeContext';
+import { formatPrice } from '../../constants/products';
+import FlowScreenHeader from '../../components/flow/FlowScreenHeader';
+import FlowStepper from '../../components/flow/FlowStepper';
+import CheckoutDeliveryStep from '../../components/flow/CheckoutDeliveryStep';
+import CheckoutPaymentStep, { PayMethod } from '../../components/flow/CheckoutPaymentStep';
+import CheckoutReviewStep from '../../components/flow/CheckoutReviewStep';
 
 const STEPS = ['Delivery', 'Payment', 'Review'];
 

@@ -1,15 +1,15 @@
 import { ScrollView, Text, View } from 'react-native';
 import { useRouter } from 'expo-router';
 import Ionicons from '@expo/vector-icons/Ionicons';
-import { useCart } from '../context/CartContext';
-import { useTheme } from '../context/ThemeContext';
-import { formatPrice } from '../constants/products';
-import TabShell from '../components/tabs/TabShell';
-import TabEmptyState from '../components/tabs/TabEmptyState';
-import TabCard from '../components/tabs/TabCard';
-import InfoBanner from '../components/tabs/InfoBanner';
-import CartItemRow from '../components/tabs/CartItemRow';
-import PrimaryActionButton from '../components/tabs/PrimaryActionButton';
+import { useCart } from '../../context/CartContext';
+import { useTheme } from '../../context/ThemeContext';
+import { formatPrice } from '../../constants/products';
+import TabShell from '../../components/tabs/TabShell';
+import TabEmptyState from '../../components/tabs/TabEmptyState';
+import TabCard from '../../components/tabs/TabCard';
+import InfoBanner from '../../components/tabs/InfoBanner';
+import CartItemRow from '../../components/tabs/CartItemRow';
+import PrimaryActionButton from '../../components/tabs/PrimaryActionButton';
 
 export default function CartScreen() {
   const { cart, removeFromCart, updateQuantity, totalItems, totalPrice } = useCart();

@@ -1,20 +1,24 @@
 import { Text, TouchableOpacity, View } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useState } from 'react';
-import { useTheme } from '../context/ThemeContext';
+import { useTheme } from '../../context/ThemeContext';
 import Ionicons from '@expo/vector-icons/Ionicons';
-import AuthScreen from '../components/auth/AuthScreen';
-import AuthHeader from '../components/auth/AuthHeader';
-import AuthField from '../components/auth/AuthField';
-import AuthButton from '../components/auth/AuthButton';
-import AuthCheckbox from '../components/auth/AuthCheckbox';
-import GoogleAuthButton from '../components/auth/GoogleAuthButton';
+import AuthScreen from '../../components/auth/AuthScreen';
+import AuthHeader from '../../components/auth/AuthHeader';
+import AuthField from '../../components/auth/AuthField';
+import AuthButton from '../../components/auth/AuthButton';
+import AuthCheckbox from '../../components/auth/AuthCheckbox';
+import GoogleAuthButton from '../../components/auth/GoogleAuthButton';
 import {
   getPasswordStrength,
   validateSignUp,
   type SignUpFormErrors,
   type SignUpFormState,
-} from '../components/auth/authUtils';
+} from '../../components/auth/authUtils';
+import { registerWithEmail, loginWithGoogle } from '../../components/auth/googleAuth';
+import { Alert } from 'react-native';
+
+
 
 const EMPTY: SignUpFormState = {
   name: '',
@@ -59,20 +63,30 @@ export default function SignUpScreen() {
     if (submitted) setErrors(validateSignUp(next));
   };
 
-  const handleSignUp = async () => {
-    setSubmitted(true);
-    const nextErrors = validateSignUp(form);
-    setErrors(nextErrors);
-    if (Object.keys(nextErrors).length > 0 || !agreed) return;
+ const handleSignUp = async () => {
+  setSubmitted(true);
+  const nextErrors = validateSignUp(form);
+  setErrors(nextErrors);
+  if (Object.keys(nextErrors).length > 0 || !agreed) return;
 
-    setLoading(true);
-    await new Promise((resolve) => setTimeout(resolve, 1400));
+  setLoading(true);
+  try {
+    await registerWithEmail(form.email, form.password);
+    router.replace('/(tabs)/home');
+  } catch (e: any) {
+    Alert.alert('Sign up failed', e.message);
+  } finally {
     setLoading(false);
-    router.replace('/(tabs)/home');
-  };
+  }
+};
 
-  const handleGoogleSuccess = () => {
-    router.replace('/(tabs)/home');
+  const handleGoogleSuccess = async () => {
+    try {
+      await loginWithGoogle();
+      router.replace('/(tabs)/home');
+    } catch (e: any) {
+      Alert.alert('Google sign-up failed', e.message);
+    }
   };
 
   const passwordStrength = getPasswordStrength(form.password, isDark);

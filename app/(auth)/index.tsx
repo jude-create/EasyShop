@@ -1,15 +1,18 @@
 import { Text, TouchableOpacity, View } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useState } from 'react';
-import { useTheme } from '../context/ThemeContext';
-import AuthScreen from '../components/auth/AuthScreen';
-import AuthHeader from '../components/auth/AuthHeader';
-import AuthField from '../components/auth/AuthField';
-import AuthButton from '../components/auth/AuthButton';
-import GoogleAuthButton from '../components/auth/GoogleAuthButton';
-import { validateLogin, type LoginFormErrors } from '../components/auth/authUtils';
-import { getGoogleAuthConfig } from '../components/auth/googleAuth';
-console.log('Google config:', getGoogleAuthConfig());
+import { useTheme } from '../../context/ThemeContext';
+import AuthScreen from '../../components/auth/AuthScreen';
+import AuthHeader from '../../components/auth/AuthHeader';
+import AuthField from '../../components/auth/AuthField';
+import AuthButton from '../../components/auth/AuthButton';
+import GoogleAuthButton from '../../components/auth/GoogleAuthButton';
+import { validateLogin, type LoginFormErrors } from '../../components/auth/authUtils';
+import { loginWithEmail, loginWithGoogle } from '../../components/auth/googleAuth';
+import { Alert } from 'react-native';
+
+
+
 export default function LoginScreen() {
   const router = useRouter();
   const { colors } = useTheme();
@@ -32,20 +35,32 @@ export default function LoginScreen() {
   };
 
   const handleLogin = async () => {
-    setSubmitted(true);
-    const nextErrors = validateLogin(email, password);
-    setErrors(nextErrors);
-    if (Object.keys(nextErrors).length > 0) return;
+  setSubmitted(true);
+  const nextErrors = validateLogin(email, password);
+  setErrors(nextErrors);
+  if (Object.keys(nextErrors).length > 0) return;
 
-    setLoading(true);
-    await new Promise((resolve) => setTimeout(resolve, 1200));
+  setLoading(true);
+  try {
+    await loginWithEmail(email, password);
+    router.replace('/(tabs)/home');
+  } catch (e: any) {
+    Alert.alert('Login failed', e.message);
+  } finally {
     setLoading(false);
-    router.replace('/(tabs)/home');
-  };
+  }
+};
 
-  const handleGoogleSuccess = () => {
+const handleGoogleSuccess = async () => {
+  try {
+    await loginWithGoogle();
     router.replace('/(tabs)/home');
-  };
+  } catch (e: any) {
+    Alert.alert('Google sign-in failed', e.message);
+  }
+};
+
+  
 
   return (
     <AuthScreen backgroundColor={colors.primary} contentBackgroundColor={colors.background}>

@@ -98,11 +98,11 @@ export default function ProductTile({
             overflow: 'hidden',
           }}
         >
-          <Image
-            source={product.image}
-            style={{ width: '100%', height: '100%' }}
-            resizeMode="contain"
-          />
+           <Image
+    source={typeof product.image === 'string' ? { uri: product.image } : product.image}
+    style={{ width: 800, height: '100%' }}
+    resizeMode="contain"
+  />
         </View>
         <Text style={{ fontSize: 12, fontWeight: '600', color: colors.text, marginBottom: 2 }} numberOfLines={2}>
           {product.name}

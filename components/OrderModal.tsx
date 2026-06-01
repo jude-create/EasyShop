@@ -1,5 +1,5 @@
-import { View, Text, Modal, TouchableOpacity, ScrollView } from 'react-native'
-import React, { useState } from 'react'
+import { View, Text, Modal, TouchableOpacity, ScrollView, Image } from 'react-native'
+import React from 'react'
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useTheme } from '.././context/ThemeContext';
@@ -96,7 +96,11 @@ export default function OrderModal({
                   {selectedOrder.items.map((item, i) => (
                     <View key={i} style={{ flexDirection: 'row', alignItems: 'center', padding: 14, gap: 12, borderBottomWidth: i < selectedOrder.items.length - 1 ? 0.5 : 0, borderBottomColor: colors.border }}>
                       <View style={{ width: 48, height: 48, borderRadius: 12, backgroundColor: colors.subtle, alignItems: 'center', justifyContent: 'center' }}>
-                        <Text style={{ fontSize: 24 }}>{item.emoji}</Text>
+                        <Image
+                          source={typeof item.image === 'string' ? { uri: item.image } : item.image}
+                          style={{ width: '100%', height: '100%' }}
+                          resizeMode="contain"
+                        />
                       </View>
                       <View style={{ flex: 1 }}>
                         <Text style={{ fontSize: 13, fontWeight: '600', color: colors.text }}>{item.name}</Text>

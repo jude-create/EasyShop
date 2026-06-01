@@ -1,9 +1,13 @@
 import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import './global.css';
-import { CartProvider } from './context/CartContext';
-import { ThemeProvider, useTheme } from './context/ThemeContext';
-import { WishlistProvider } from './context/WishlistContext';
+import { CartProvider } from '../context/CartContext';
+import { ThemeProvider, useTheme } from '../context/ThemeContext';
+import { WishlistProvider } from '../context/WishlistContext';
+import { configureGoogleSignIn } from '../components/auth/googleAuth';
+
+// Outside any component, at the top level:
+configureGoogleSignIn();
 
 function AppStack() {
   const { isDark } = useTheme();
@@ -12,34 +16,7 @@ function AppStack() {
       <Stack screenOptions={{ headerShown: false }}>
         <Stack.Screen name="(auth)" />
         <Stack.Screen name="(tabs)" />
-        <Stack.Screen
-          name="product/[id]"
-          options={{
-            presentation: 'card',
-            animation: 'slide_from_right',
-          }}
-        />
-        <Stack.Screen
-          name="orderHistory"
-          options={{ presentation: 'card', animation: 'slide_from_right' }}
-        />
-        <Stack.Screen
-          name="checkout"
-          options={{
-            presentation: 'card',
-            animation: 'slide_from_bottom',
-          }}
-        />
-        <Stack.Screen
-          name="orderSuccess"
-          options={{
-            presentation: 'fullScreenModal',
-            animation: 'fade',
-          }}
-        />
-        <Stack.Screen name="editProfile" options={{ presentation: 'card', animation: 'slide_from_right' }} />
-        <Stack.Screen name="savedAddresses" options={{ presentation: 'card', animation: 'slide_from_right' }} />
-        <Stack.Screen name="paymentMethods" options={{ presentation: 'card', animation: 'slide_from_right' }} />
+        <Stack.Screen name="(other)"/>
        
       </Stack>
       <StatusBar style={isDark ? 'light' : 'dark'} />

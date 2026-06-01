@@ -56,7 +56,7 @@ export default function CartItemRow({
           justifyContent: 'center',
         }}
       >
-        <Text style={{ fontSize: 28 }}>{item.emoji}</Text>
+        <Text style={{ fontSize: 28 }}>{item.image}</Text>
       </View>
 
       <View style={{ flex: 1 }}>

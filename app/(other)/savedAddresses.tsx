@@ -3,12 +3,12 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { useState } from 'react';
 import Ionicons from '@expo/vector-icons/Ionicons';
-import { useTheme } from './context/ThemeContext';
-import FlowScreenHeader from './components/flow/FlowScreenHeader';
-import FlowAddressCard, { Address } from './components/flow/FlowAddressCard';
-import FlowModalHeader from './components/flow/FlowModalHeader';
-import FlowTextField from './components/flow/FlowTextField';
-import FlowLabelChips from './components/flow/FlowLabelChips';
+import { useTheme } from '../../context/ThemeContext';
+import FlowScreenHeader from '../../components/flow/FlowScreenHeader';
+import FlowAddressCard, { Address } from '../../components/flow/FlowAddressCard';
+import FlowModalHeader from '../../components/flow/FlowModalHeader';
+import FlowTextField from '../../components/flow/FlowTextField';
+import FlowLabelChips from '../../components/flow/FlowLabelChips';
 
 const INITIAL: Address[] = [
   { id: '1', label: 'Home', name: 'Admin User', street: '12 Adeola Odeku Street', city: 'Victoria Island', state: 'Lagos', phone: '+234 800 000 0000', isDefault: true },

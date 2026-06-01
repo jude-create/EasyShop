@@ -2,10 +2,10 @@ import { View, Text, ScrollView, TouchableOpacity, Platform, ToastAndroid, Alert
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import Ionicons from '@expo/vector-icons/Ionicons';
-import { useCart } from '../../context/CartContext';
-import { useTheme } from '../../context/ThemeContext';
-import { useWishlist } from '../../context/WishlistContext';
-import { Product } from '../../constants/products';
+import { useCart } from '../../../context/CartContext';
+import { useTheme } from '../../../context/ThemeContext';
+import { useWishlist } from '../../../context/WishlistContext';
+import { Product } from '../../../constants/products';
 
 export default function ProductDetailScreen() {
   const { product: raw } = useLocalSearchParams<{ product: string }>();

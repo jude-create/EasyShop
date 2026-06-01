@@ -2,12 +2,12 @@ import { KeyboardAvoidingView, Modal, Platform, ScrollView, Text, TouchableOpaci
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { useState } from 'react';
-import { useTheme } from './context/ThemeContext';
-import FlowScreenHeader from './components/flow/FlowScreenHeader';
-import FlowPaymentCard from './components/flow/FlowPaymentCard';
-import FlowMethodRow from './components/flow/FlowMethodRow';
-import FlowModalHeader from './components/flow/FlowModalHeader';
-import FlowTextField from './components/flow/FlowTextField';
+import { useTheme } from '../../context/ThemeContext';
+import FlowScreenHeader from '../../components/flow/FlowScreenHeader';
+import FlowPaymentCard from '../../components/flow/FlowPaymentCard';
+import FlowMethodRow from '../../components/flow/FlowMethodRow';
+import FlowModalHeader from '../../components/flow/FlowModalHeader';
+import FlowTextField from '../../components/flow/FlowTextField';
 
 interface Card {
   id: string;

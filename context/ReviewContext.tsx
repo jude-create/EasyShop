@@ -4,7 +4,7 @@ export interface Review {
   id: string;
   productId: number;
   productName: string;
-  productEmoji: string;
+  productImage: string | number;
   rating: number;
   comment: string;
   date: string;
@@ -25,7 +25,7 @@ const SEED_REVIEWS: Review[] = [
     id: 'r1',
     productId: 1,
     productName: 'Samsung Galaxy S23',
-    productEmoji: '📱',
+    productImage: require('../assets/images/samsung.jpg'),
     rating: 5,
     comment: 'Amazing phone! The camera is outstanding and battery life is superb. Highly recommend.',
     date: 'May 25, 2026',
@@ -35,7 +35,7 @@ const SEED_REVIEWS: Review[] = [
     id: 'r2',
     productId: 3,
     productName: 'Sony WH-1000XM4',
-    productEmoji: '🎧',
+    productImage: require('../assets/images/headphone.jpg'),
     rating: 4,
     comment: 'Excellent noise cancellation. Comfortable for long sessions. Sound quality is top tier.',
     date: 'May 25, 2026',
@@ -45,7 +45,7 @@ const SEED_REVIEWS: Review[] = [
     id: 'r3',
     productId: 7,
     productName: 'PlayStation 5',
-    productEmoji: '🎮',
+    productImage: require('../assets/images/pad.jpg'),
     rating: 5,
     comment: 'Best gaming console I have ever owned. Load times are incredible.',
     date: 'Apr 29, 2026',

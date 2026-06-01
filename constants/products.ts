@@ -1,6 +1,6 @@
 export interface Product {
   id: number;
-  image: number;
+  image: string;
   name: string;
   description: string;
   price: string;
@@ -12,7 +12,7 @@ export interface Product {
 export const PRODUCTS: Product[] = [
   {
     id: 1,
-    image: require('../../assets/images/samsung.jpg'),
+    image: require('../assets/images/samsung.jpg'),
     name: 'Samsung Galaxy S23',
     description: 'Latest Samsung flagship with 200MP camera, Snapdragon 8 Gen 2, and all-day battery life.',
     price: '₦450,000',
@@ -22,7 +22,7 @@ export const PRODUCTS: Product[] = [
   },
   {
     id: 2,
-    image: require('../../assets/images/laptop.jpg'),
+    image: require('../assets/images/laptop.jpg'),
     name: 'Dell XPS 13 Laptop',
     description: 'Ultrabook with 11th Gen Intel Core i7, 16GB RAM, and stunning InfinityEdge display.',
     price: '₦750,000',
@@ -31,7 +31,7 @@ export const PRODUCTS: Product[] = [
   },
   {
     id: 3,
-    image: require('../../assets/images/headphone.jpg'),
+    image: require('../assets/images/headphone.jpg'),
     name: 'Sony WH-1000XM4',
     description: 'Industry-leading noise cancellation, 30-hour battery, and premium audio quality.',
     price: '₦180,000',
@@ -41,7 +41,7 @@ export const PRODUCTS: Product[] = [
   },
   {
     id: 4,
-    image: require('../../assets/images/footwear.jpg'),
+    image: require('../assets/images/footwear.jpg'),
     name: 'Nike Air Max 270',
     description: 'Maximum Air cushioning with breathable mesh upper for all-day comfort.',
     price: '₦65,000',
@@ -50,7 +50,7 @@ export const PRODUCTS: Product[] = [
   },
   {
     id: 5,
-    image: require('../../assets/images/watch.jpg'),
+    image: require('../assets/images/watch.jpg'),
     name: 'Apple Watch Series 9',
     description: 'Advanced health sensors, crash detection, and a brighter always-on display.',
     price: '₦250,000',
@@ -60,7 +60,7 @@ export const PRODUCTS: Product[] = [
   },
   {
     id: 6,
-    image: require('../../assets/images/camera.jpg'),
+    image: require('../assets/images/camera.jpg'),
     name: 'Canon EOS R6 Mark II',
     description: 'Full-frame mirrorless camera with 40fps burst, 4K60p video, and IBIS.',
     price: '₦350,000',
@@ -69,7 +69,7 @@ export const PRODUCTS: Product[] = [
   },
   {
     id: 7,
-    image: require('../../assets/images/pad.jpg'),
+    image: require('../assets/images/pad.jpg'),
     name: 'PlayStation 5',
     description: 'Next-gen gaming with ultra-high-speed SSD, haptic feedback, and 4K gaming.',
     price: '₦420,000',
@@ -79,7 +79,7 @@ export const PRODUCTS: Product[] = [
   },
   {
     id: 8,
-    image: require('../../assets/images/TV.jpg'),
+    image: require('../assets/images/TV.jpg'),
     name: 'LG OLED 55" C3',
     description: 'Perfect blacks, infinite contrast, and NVIDIA G-Sync for stunning visuals.',
     price: '₦950,000',
@@ -88,7 +88,7 @@ export const PRODUCTS: Product[] = [
   },
   {
     id: 9,
-    image: require('../../assets/images/cloth2.jpg'),
+    image: require('../assets/images/cloth2.jpg'),
     name: 'Gray Crop Top',
     description: 'A very fancy crop top',
     price: '₦20,000',
@@ -98,7 +98,7 @@ export const PRODUCTS: Product[] = [
   },
   {
     id: 10,
-    image: require('../../assets/images/clothes1.jpg'),
+    image: require('../assets/images/clothes1.jpg'),
     name: 'A Brown Hoodie',
     description: 'A very cozy brown hoodie',
     price: '₦30,000',

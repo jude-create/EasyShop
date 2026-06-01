@@ -3,8 +3,8 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { useEffect, useRef } from 'react';
 import Ionicons from '@expo/vector-icons/Ionicons';
-import { useTheme } from './context/ThemeContext';
-import { formatPrice } from './constants/products';
+import { useTheme } from '../../context/ThemeContext';
+
 
 const ORDER_NUMBER = `CWR-${Math.floor(100000 + Math.random() * 900000)}`;
 

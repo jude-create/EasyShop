@@ -1,13 +1,13 @@
 import { ScrollView, Text, View } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useState } from 'react';
-import { useTheme } from './context/ThemeContext';
-import { Order, OrderStatus } from './types/order';
-import OrderModal from './components/OrderModal';
-import FlowScreenHeader from './components/flow/FlowScreenHeader';
-import FlowStatsStrip from './components/flow/FlowStatsStrip';
-import FlowFilterChips from './components/flow/FlowFilterChips';
-import FlowOrderCard from './components/flow/FlowOrderCard';
+import { useTheme } from '../../context/ThemeContext';
+import { Order, OrderStatus } from '../../types/order';
+import OrderModal from '../../components/OrderModal';
+import FlowScreenHeader from '../../components/flow/FlowScreenHeader';
+import FlowStatsStrip from '../../components/flow/FlowStatsStrip';
+import FlowFilterChips from '../../components/flow/FlowFilterChips';
+import FlowOrderCard from '../../components/flow/FlowOrderCard';
 
 const ORDERS: Order[] = [
   {
@@ -15,8 +15,8 @@ const ORDERS: Order[] = [
     date: 'May 24, 2026',
     status: 'Delivered',
     items: [
-      { emoji: '📱', name: 'Samsung Galaxy S23', qty: 1, price: 450000 },
-      { emoji: '🎧', name: 'Sony WH-1000XM4', qty: 1, price: 180000 },
+      { image: require('../../assets/images/samsung.jpg'), name: 'Samsung Galaxy S23', qty: 1, price: 450000 },
+      { image: require('../../assets/images/headphone.jpg'), name: 'Sony WH-1000XM4', qty: 1, price: 180000 },
     ],
     subtotal: 630000,
     delivery: 0,
@@ -27,7 +27,7 @@ const ORDERS: Order[] = [
     id: 'CWR-371845',
     date: 'May 18, 2026',
     status: 'Shipped',
-    items: [{ emoji: '💻', name: 'Dell XPS 13 Laptop', qty: 1, price: 750000 }],
+    items: [{ image: require('../../assets/images/laptop.jpg'), name: 'Dell XPS 13 Laptop', qty: 1, price: 750000 }],
     subtotal: 750000,
     delivery: 0,
     paymentMethod: 'Bank Transfer',
@@ -38,8 +38,8 @@ const ORDERS: Order[] = [
     date: 'May 10, 2026',
     status: 'Processing',
     items: [
-      { emoji: '⌚', name: 'Apple Watch Series 9', qty: 1, price: 250000 },
-      { emoji: '👟', name: 'Nike Air Max 270', qty: 2, price: 65000 },
+      { image: require('../../assets/images/watch.jpg'), name: 'Apple Watch Series 9', qty: 1, price: 250000 },
+      { image: require('../../assets/images/footwear.jpg'), name: 'Nike Air Max 270', qty: 2, price: 65000 },
     ],
     subtotal: 380000,
     delivery: 5000,
@@ -50,7 +50,7 @@ const ORDERS: Order[] = [
     id: 'CWR-183920',
     date: 'Apr 28, 2026',
     status: 'Delivered',
-    items: [{ emoji: '🎮', name: 'PlayStation 5', qty: 1, price: 420000 }],
+    items: [{ image: require('../../assets/images/pad.jpg'), name: 'PlayStation 5', qty: 1, price: 420000 }],
     subtotal: 420000,
     delivery: 0,
     paymentMethod: 'Pay on Delivery',
@@ -60,7 +60,7 @@ const ORDERS: Order[] = [
     id: 'CWR-094821',
     date: 'Apr 15, 2026',
     status: 'Cancelled',
-    items: [{ emoji: '📺', name: 'LG OLED 55" C3', qty: 1, price: 950000 }],
+    items: [{ image: require('../../assets/images/TV.jpg'), name: 'LG OLED 55" C3', qty: 1, price: 950000 }],
     subtotal: 950000,
     delivery: 0,
     paymentMethod: 'Visa •••• 4242',
@@ -79,7 +79,7 @@ export default function OrderHistoryScreen() {
   const filtered = activeFilter === 'All' ? ORDERS : ORDERS.filter((order) => order.status === activeFilter);
 
   return (
-    <View style={{ flex: 1, backgroundColor: colors.background }}>
+    <View style={{ flex: 1, backgroundColor: colors.background, paddingTop: 20 }}>
       <FlowScreenHeader
         colors={colors}
         title="Order History"
