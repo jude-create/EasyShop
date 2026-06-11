@@ -17,6 +17,7 @@ export interface GoogleAuthProfile {
 }
 
 export function configureGoogleSignIn() {
+  // Configure Google Sign-In once at app start so Firebase auth can reuse the same client id.
   GoogleSignin.configure({
     webClientId: process.env.EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID,
   });
@@ -35,6 +36,7 @@ export async function registerWithEmail(email: string, password: string) {
 }
 
 export async function loginWithGoogle() {
+  // Chain Google Sign-In into Firebase credential sign-in so the app ends up with a Firebase user session.
   await GoogleSignin.hasPlayServices();
   const { data } = await GoogleSignin.signIn();
   const auth = getAuth(getApp());
@@ -45,6 +47,7 @@ export async function loginWithGoogle() {
 
 export async function logout() {
   const auth = getAuth(getApp());
+  // Keep the auth helper thin so callers do not need to know which Firebase API flavor is being used.
   await signOut(auth);
 }
 

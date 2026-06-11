@@ -3,6 +3,8 @@ import { useRouter } from 'expo-router';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { useTheme } from '../../context/ThemeContext';
 import { useCart } from '../../context/CartContext';
+import { useProfile } from '../../context/ProfileContext';
+import { useTabBarScrollHandler } from '../../context/TabBarScrollContext';
 import TabShell from '../../components/tabs/TabShell';
 import ProfileHero from '../../components/tabs/ProfileHero';
 import StatsStrip from '../../components/tabs/StatsStrip';
@@ -46,6 +48,11 @@ export default function ProfileScreen() {
   const router = useRouter();
   const { colors, isDark, themeMode, setThemeMode } = useTheme();
   const { clearCart } = useCart();
+  const { profile, profileLoading, pushToken, notificationStatus, refreshPushNotifications, signOutUser } = useProfile();
+  const displayName = [profile?.firstName, profile?.lastName].filter(Boolean).join(' ') || profile?.email || 'Guest';
+  const email = profile?.email || 'No email available';
+  const avatarUri = profile?.avatarUrl;
+  const tabBarScrollHandler = useTabBarScrollHandler();
 
   const handleLogout = () => {
     Alert.alert('Sign Out', 'Are you sure you want to sign out?', [
@@ -53,8 +60,9 @@ export default function ProfileScreen() {
       {
         text: 'Sign Out',
         style: 'destructive',
-        onPress: () => {
+        onPress: async () => {
           clearCart();
+          await signOutUser();
           router.replace('/(auth)');
         },
       },
@@ -63,8 +71,15 @@ export default function ProfileScreen() {
 
   return (
     <TabShell backgroundColor={colors.primary} contentBackgroundColor={colors.background}>
-      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 32 }}>
-        <ProfileHero colors={colors} name="Admin User" email="admin@cwretail.com" role="Store Manager" />
+      <ScrollView {...tabBarScrollHandler} showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 32 }}>
+        <ProfileHero
+          colors={colors}
+          name={profileLoading ? 'Loading profile...' : displayName}
+          email={profileLoading ? 'Please wait...' : email}
+          role="Customer"
+          avatarUri={avatarUri}
+          onPressAvatar={() => router.push('/(other)/editProfile')}
+        />
 
         <StatsStrip
           colors={colors}
@@ -73,6 +88,45 @@ export default function ProfileScreen() {
         />
 
         <ThemeSwitcher colors={colors} themeMode={themeMode} onChange={setThemeMode} />
+
+        {__DEV__ && (
+          <View
+            style={{
+              marginHorizontal: 16,
+              marginTop: 16,
+              backgroundColor: colors.card,
+              borderRadius: 16,
+              padding: 14,
+              borderWidth: 1,
+              borderColor: colors.border,
+            }}
+          >
+            <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 12 }}>
+              <View style={{ flex: 1 }}>
+                <Text style={{ color: colors.text, fontSize: 14, fontWeight: '800' }}>
+                  Notification debug
+                </Text>
+                <Text style={{ color: colors.textSecondary, fontSize: 12, marginTop: 4 }}>
+                  Status: {notificationStatus || 'not checked'}
+                </Text>
+              </View>
+              <TouchableOpacity
+                onPress={refreshPushNotifications}
+                style={{ backgroundColor: colors.primaryLight, borderRadius: 10, paddingHorizontal: 12, paddingVertical: 8 }}
+                activeOpacity={0.8}
+              >
+                <Text style={{ color: colors.primary, fontSize: 12, fontWeight: '800' }}>Refresh</Text>
+              </TouchableOpacity>
+            </View>
+            <Text
+              selectable
+              numberOfLines={3}
+              style={{ color: colors.textMuted, fontSize: 11, lineHeight: 16, marginTop: 10 }}
+            >
+              {pushToken || ''}
+            </Text>
+          </View>
+        )}
 
         {MENU_SECTIONS.map((section) => (
           <MenuSection

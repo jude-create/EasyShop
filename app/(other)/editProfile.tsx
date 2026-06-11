@@ -1,9 +1,10 @@
 import { Alert, KeyboardAvoidingView, Platform, ScrollView, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import * as ImagePicker from 'expo-image-picker';
 import { useTheme } from '../../context/ThemeContext';
+import { useProfile } from '../../context/ProfileContext';
 import {
   ProfileScreenHeader,
   ProfileAvatarPicker,
@@ -17,23 +18,37 @@ type ProfileForm = {
   lastName: string;
   email: string;
   phone: string;
-  bio: string;
+  address: string;
   dob: string;
 };
 
 export default function EditProfileScreen() {
   const router = useRouter();
   const { colors } = useTheme();
-  const [saving, setSaving] = useState(false);
+  const { profile, saveProfile, savingProfile, profileLoading } = useProfile();
   const [avatarUri, setAvatarUri] = useState<string | null>(null);
   const [form, setForm] = useState<ProfileForm>({
-    firstName: 'Admin',
-    lastName: 'User',
-    email: 'admin@cwretail.com',
-    phone: '+234 800 000 0000',
-    bio: 'Store Manager at CW Retail',
+    firstName: '',
+    lastName: '',
+    email: '',
+    phone: '',
+    address: '',
     dob: '',
   });
+
+  useEffect(() => {
+    if (!profile) return;
+
+    setForm({
+      firstName: profile.firstName || '',
+      lastName: profile.lastName || '',
+      email: profile.email || '',
+      phone: profile.phone || '',
+      address: profile.address || '',
+      dob: profile.dob || '',
+    });
+    setAvatarUri(profile.avatarUrl || null);
+  }, [profile]);
 
   const updateField = <K extends keyof ProfileForm>(key: K, value: ProfileForm[K]) => {
     setForm((prev) => ({ ...prev, [key]: value }));
@@ -83,9 +98,15 @@ export default function EditProfileScreen() {
   };
 
   const handleSave = async () => {
-    setSaving(true);
-    await new Promise((resolve) => setTimeout(resolve, 1200));
-    setSaving(false);
+    await saveProfile({
+      firstName: form.firstName,
+      lastName: form.lastName,
+      email: form.email,
+      phone: form.phone,
+      address: form.address,
+      dob: form.dob,
+      avatarUrl: avatarUri,
+    });
     router.back();
   };
 
@@ -97,7 +118,7 @@ export default function EditProfileScreen() {
           title="Edit Profile"
           onBack={() => router.back()}
           onSave={handleSave}
-          saving={saving}
+          saving={savingProfile}
         />
 
         <ScrollView contentContainerStyle={{ padding: 16, paddingBottom: 40 }} showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled">
@@ -131,10 +152,10 @@ export default function EditProfileScreen() {
           </View>
           <ProfileInputField
             colors={colors}
-            label="Bio"
-            value={form.bio}
-            onChangeText={(value) => updateField('bio', value)}
-            placeholder="Tell us about yourself"
+            label="Address"
+            value={form.address}
+            onChangeText={(value) => updateField('address', value)}
+            placeholder="Enter your address"
             multiline
           />
           <ProfileInputField
@@ -163,7 +184,7 @@ export default function EditProfileScreen() {
             keyboardType="phone-pad"
           />
 
-          <ProfileSaveButton colors={colors} label="Save Changes" loading={saving} onPress={handleSave} />
+          <ProfileSaveButton colors={colors} label="Save Changes" loading={savingProfile || profileLoading} onPress={handleSave} />
         </ScrollView>
       </KeyboardAvoidingView>
     </SafeAreaView>

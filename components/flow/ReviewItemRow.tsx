@@ -1,15 +1,11 @@
-import { Text, View } from 'react-native';
+import { Image, Text, View } from 'react-native';
 import { CartItem } from '../../context/CartContext';
+import type { AppColors } from '../../context/ThemeContext';
 import { formatPrice } from '../../constants/products';
 
 interface ReviewItemRowProps {
   item: CartItem;
-  colors: {
-    text: string;
-    textMuted: string;
-    primary: string;
-    border: string;
-  };
+  colors: AppColors;
   showDivider: boolean;
 }
 
@@ -25,7 +21,23 @@ export default function ReviewItemRow({ item, colors, showDivider }: ReviewItemR
         borderBottomColor: colors.border,
       }}
     >
-      <Text style={{ fontSize: 22 }}>{item.image}</Text>
+      <View
+        style={{
+          width: 36,
+          height: 36,
+          borderRadius: 10,
+          backgroundColor: colors.subtle,
+          alignItems: 'center',
+          justifyContent: 'center',
+          overflow: 'hidden',
+        }}
+      >
+        <Image
+          source={typeof item.image === 'string' ? { uri: item.image } : item.image}
+          style={{ width: '100%', height: '100%' }}
+          resizeMode="contain"
+        />
+      </View>
       <View style={{ flex: 1 }}>
         <Text style={{ fontSize: 13, fontWeight: '500', color: colors.text }} numberOfLines={1}>
           {item.name}
@@ -38,4 +50,3 @@ export default function ReviewItemRow({ item, colors, showDivider }: ReviewItemR
     </View>
   );
 }
-

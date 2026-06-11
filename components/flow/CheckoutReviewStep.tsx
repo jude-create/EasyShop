@@ -1,5 +1,6 @@
 import { CartItem } from '../../context/CartContext';
 import { Text, View } from 'react-native';
+import type { AppColors } from '../../context/ThemeContext';
 import ReviewItemsCard from './ReviewItemsCard';
 import ReviewAddressCard from './ReviewAddressCard';
 import ReviewSummaryCard from './ReviewSummaryCard';
@@ -13,16 +14,7 @@ interface AddressState {
 }
 
 interface CheckoutReviewStepProps {
-  colors: {
-    card: string;
-    border: string;
-    subtle: string;
-    text: string;
-    textMuted: string;
-    textSecondary: string;
-    primary: string;
-    green: string;
-  };
+  colors: AppColors;
   cart: CartItem[];
   totalItems: number;
   totalPrice: number;

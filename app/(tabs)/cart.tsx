@@ -3,6 +3,7 @@ import { useRouter } from 'expo-router';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { useCart } from '../../context/CartContext';
 import { useTheme } from '../../context/ThemeContext';
+import { useTabBarScrollHandler } from '../../context/TabBarScrollContext';
 import { formatPrice } from '../../constants/products';
 import TabShell from '../../components/tabs/TabShell';
 import TabEmptyState from '../../components/tabs/TabEmptyState';
@@ -15,6 +16,7 @@ export default function CartScreen() {
   const { cart, removeFromCart, updateQuantity, totalItems, totalPrice } = useCart();
   const { colors, isDark } = useTheme();
   const router = useRouter();
+  const tabBarScrollHandler = useTabBarScrollHandler();
 
   const DELIVERY_THRESHOLD = 500000;
   const deliveryFee = totalPrice >= DELIVERY_THRESHOLD ? 0 : 5000;
@@ -54,7 +56,7 @@ export default function CartScreen() {
         />
       ) : (
         <>
-          <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 8 }}>
+          <ScrollView {...tabBarScrollHandler} showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 8 }}>
             {deliveryFee > 0 ? (
               <InfoBanner
                 colors={colors}

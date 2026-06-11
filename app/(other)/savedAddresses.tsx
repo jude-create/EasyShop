@@ -1,19 +1,17 @@
 import { Alert, KeyboardAvoidingView, Modal, Platform, ScrollView, Text, TouchableOpacity } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { useTheme } from '../../context/ThemeContext';
+import { useSavedAddresses } from '../../context/SavedAddressesContext';
 import FlowScreenHeader from '../../components/flow/FlowScreenHeader';
 import FlowAddressCard, { Address } from '../../components/flow/FlowAddressCard';
 import FlowModalHeader from '../../components/flow/FlowModalHeader';
 import FlowTextField from '../../components/flow/FlowTextField';
 import FlowLabelChips from '../../components/flow/FlowLabelChips';
-
-const INITIAL: Address[] = [
-  { id: '1', label: 'Home', name: 'Admin User', street: '12 Adeola Odeku Street', city: 'Victoria Island', state: 'Lagos', phone: '+234 800 000 0000', isDefault: true },
-  { id: '2', label: 'Office', name: 'Admin User', street: '5 Broad Street', city: 'Lagos Island', state: 'Lagos', phone: '+234 801 000 0000', isDefault: false },
-];
+import TabEmptyState from '../../components/tabs/TabEmptyState';
+import AsyncStateCard from '../../components/tabs/AsyncStateCard';
 
 const BLANK: Address = { id: '', label: '', name: '', street: '', city: '', state: '', phone: '', isDefault: false };
 
@@ -26,7 +24,7 @@ const LABEL_ICONS: Record<string, keyof typeof Ionicons.glyphMap> = {
 export default function SavedAddressesScreen() {
   const router = useRouter();
   const { colors } = useTheme();
-  const [addresses, setAddresses] = useState<Address[]>(INITIAL);
+  const { addresses, loading, saveAddress, deleteAddress, setDefaultAddress } = useSavedAddresses();
   const [modalOpen, setModalOpen] = useState(false);
   const [editing, setEditing] = useState<Address>(BLANK);
 
@@ -40,32 +38,29 @@ export default function SavedAddressesScreen() {
     setModalOpen(true);
   };
 
-  const handleSave = () => {
-    setAddresses((prev) => {
-      const exists = prev.find((address) => address.id === editing.id);
-      if (exists) return prev.map((address) => (address.id === editing.id ? editing : address));
-      return [...prev, editing];
-    });
+  const handleSave = async () => {
+    await saveAddress(editing);
     setModalOpen(false);
   };
-
-  const setDefault = (id: string) =>
-    setAddresses((prev) => prev.map((address) => ({ ...address, isDefault: address.id === id })));
 
   const handleDelete = (id: string) => {
     Alert.alert('Delete Address', 'Remove this address?', [
       { text: 'Cancel', style: 'cancel' },
-      { text: 'Delete', style: 'destructive', onPress: () => setAddresses((prev) => prev.filter((address) => address.id !== id)) },
+      { text: 'Delete', style: 'destructive', onPress: () => deleteAddress(id) },
     ]);
   };
 
-  const fields: { key: keyof Address; label: string; placeholder: string }[] = [
-    { key: 'name', label: 'Full Name', placeholder: 'John Doe' },
-    { key: 'phone', label: 'Phone', placeholder: '+234 800 000 0000' },
-    { key: 'street', label: 'Street Address', placeholder: '12 Adeola Odeku Street' },
-    { key: 'city', label: 'City', placeholder: 'Lagos' },
-    { key: 'state', label: 'State', placeholder: 'Lagos State' },
-  ];
+  const fields = useMemo(
+    () =>
+      [
+        { key: 'name', label: 'Full Name', placeholder: 'John Doe' },
+        { key: 'phone', label: 'Phone', placeholder: '+234 800 000 0000' },
+        { key: 'street', label: 'Street Address', placeholder: '12 Adeola Odeku Street' },
+        { key: 'city', label: 'City', placeholder: 'Lagos' },
+        { key: 'state', label: 'State', placeholder: 'Lagos State' },
+      ] as { key: keyof Address; label: string; placeholder: string }[],
+    [],
+  );
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: colors.background }} edges={['top']}>
@@ -78,38 +73,58 @@ export default function SavedAddressesScreen() {
       />
 
       <ScrollView contentContainerStyle={{ padding: 16, gap: 12, paddingBottom: 32 }} showsVerticalScrollIndicator={false}>
-        {addresses.map((address) => (
-          <FlowAddressCard
-            key={address.id}
+        {loading ? (
+          <AsyncStateCard
             colors={colors}
-            address={address}
-            icon={LABEL_ICONS[address.label] || 'location-outline'}
-            onEdit={() => openEdit(address)}
-            onDelete={() => handleDelete(address.id)}
-            onSetDefault={address.isDefault ? undefined : () => setDefault(address.id)}
+            tone="loading"
+            title="Loading saved addresses"
+            description="Fetching addresses from local storage."
           />
-        ))}
+        ) : addresses.length === 0 ? (
+          <TabEmptyState
+            colors={colors}
+            icon={<Ionicons name="location-outline" size={40} color={colors.textMuted} />}
+            title="No saved addresses"
+            description="Add a delivery address so checkout is faster next time."
+            actionLabel="Add Address"
+            onActionPress={openNew}
+          />
+        ) : (
+          <>
+            {addresses.map((address) => (
+              <FlowAddressCard
+                key={address.id}
+                colors={colors}
+                address={address}
+                icon={LABEL_ICONS[address.label] || 'location-outline'}
+                onEdit={() => openEdit(address)}
+                onDelete={() => handleDelete(address.id)}
+                onSetDefault={address.isDefault ? undefined : () => setDefaultAddress(address.id)}
+              />
+            ))}
 
-        <TouchableOpacity
-          onPress={openNew}
-          style={{
-            flexDirection: 'row',
-            alignItems: 'center',
-            justifyContent: 'center',
-            gap: 8,
-            backgroundColor: colors.card,
-            borderRadius: 16,
-            paddingVertical: 16,
-            borderWidth: 1,
-            borderStyle: 'dashed',
-            borderColor: colors.borderStrong,
-            marginTop: 4,
-          }}
-          activeOpacity={0.8}
-        >
-          <Text style={{ fontSize: 20, color: colors.primary }}>+</Text>
-          <Text style={{ fontSize: 14, fontWeight: '600', color: colors.primary }}>Add New Address</Text>
-        </TouchableOpacity>
+            <TouchableOpacity
+              onPress={openNew}
+              style={{
+                flexDirection: 'row',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: 8,
+                backgroundColor: colors.card,
+                borderRadius: 16,
+                paddingVertical: 16,
+                borderWidth: 1,
+                borderStyle: 'dashed',
+                borderColor: colors.borderStrong,
+                marginTop: 4,
+              }}
+              activeOpacity={0.8}
+            >
+              <Text style={{ fontSize: 20, color: colors.primary }}>+</Text>
+              <Text style={{ fontSize: 14, fontWeight: '600', color: colors.primary }}>Add New Address</Text>
+            </TouchableOpacity>
+          </>
+        )}
       </ScrollView>
 
       <Modal visible={modalOpen} animationType="slide" presentationStyle="pageSheet" onRequestClose={() => setModalOpen(false)}>

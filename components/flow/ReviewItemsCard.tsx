@@ -1,15 +1,10 @@
 import { Text, View } from 'react-native';
 import { CartItem } from '../../context/CartContext';
+import type { AppColors } from '../../context/ThemeContext';
 import ReviewItemRow from './ReviewItemRow';
 
 interface ReviewItemsCardProps {
-  colors: {
-    card: string;
-    border: string;
-    text: string;
-    textMuted: string;
-    primary: string;
-  };
+  colors: AppColors;
   cart: CartItem[];
   totalItems: number;
 }

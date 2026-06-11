@@ -1,10 +1,11 @@
 import React, { createContext, useContext, useState } from 'react';
+import type { ImageSourcePropType } from 'react-native';
 
 export interface Review {
   id: string;
   productId: number;
   productName: string;
-  productImage: string | number;
+  productImage: ImageSourcePropType;
   rating: number;
   comment: string;
   date: string;

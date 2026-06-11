@@ -1,5 +1,6 @@
 import { Text, View } from 'react-native';
 import Ionicons from '@expo/vector-icons/Ionicons';
+import type { AppColors } from '../../context/ThemeContext';
 import FlowTextField from './FlowTextField';
 import FlowOptionRow from './FlowOptionRow';
 import { formatPrice } from '../../constants/products';
@@ -14,18 +15,7 @@ interface CardState {
 }
 
 interface CheckoutPaymentStepProps {
-  colors: {
-    card: string;
-    border: string;
-    primary: string;
-    primaryLight: string;
-    subtle: string;
-    greenLight: string;
-    green: string;
-    text: string;
-    textMuted: string;
-    textSecondary: string;
-  };
+  colors: AppColors;
   total: number;
   payMethod: PayMethod;
   onPayMethodChange: (method: PayMethod) => void;

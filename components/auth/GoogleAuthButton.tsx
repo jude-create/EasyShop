@@ -1,6 +1,5 @@
 import { useState } from 'react';
-import { ActivityIndicator, Alert, Text, TouchableOpacity, View } from 'react-native';
-import Ionicons from '@expo/vector-icons/Ionicons';
+import { ActivityIndicator, Alert, Image, Text, TouchableOpacity, View } from 'react-native';
 import { loginWithGoogle } from './googleAuth';
 
 interface GoogleAuthButtonProps {
@@ -12,17 +11,20 @@ interface GoogleAuthButtonProps {
   };
   label?: string;
   onSuccess: () => void;
+  onLoadingChange?: (loading: boolean) => void;
 }
 
 export default function GoogleAuthButton({
   colors,
   label = 'Continue with Google',
   onSuccess,
+  onLoadingChange,
 }: GoogleAuthButtonProps) {
   const [loading, setLoading] = useState(false);
 
   const handlePress = async () => {
     setLoading(true);
+    onLoadingChange?.(true);
     try {
       await loginWithGoogle();
       onSuccess();
@@ -30,6 +32,7 @@ export default function GoogleAuthButton({
       Alert.alert('Google sign-in failed', e.message);
     } finally {
       setLoading(false);
+      onLoadingChange?.(false);
     }
   };
 
@@ -56,7 +59,10 @@ export default function GoogleAuthButton({
           <ActivityIndicator color={colors.text} />
         ) : (
           <>
-            <Ionicons name="logo-google" size={18} color={colors.text} />
+            <Image
+              source={require('../../assets/images/google.png')}
+              style={{ width: 18, height: 18, resizeMode: 'contain' }}
+            />
             <Text style={{ color: colors.text, fontWeight: '700', fontSize: 15 }}>
               {label}
             </Text>

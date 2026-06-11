@@ -1,16 +1,8 @@
 import { Text, TouchableOpacity, View } from 'react-native';
+import type { AppColors } from '../../context/ThemeContext';
 
 interface FlowPaymentCardProps {
-  colors: {
-    card: string;
-    border: string;
-    primary: string;
-    primaryLight: string;
-    subtle: string;
-    text: string;
-    textMuted: string;
-    textSecondary: string;
-  };
+  colors: AppColors;
   brand: string;
   last4: string;
   expiry: string;

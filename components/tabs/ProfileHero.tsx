@@ -1,6 +1,4 @@
-import { useState } from 'react';
-import { Alert, Image, Text, TouchableOpacity, View } from 'react-native';
-import * as ImagePicker from 'expo-image-picker';
+import { Image, Text, TouchableOpacity, View } from 'react-native';
 import Ionicons from '@expo/vector-icons/Ionicons';
 
 interface ProfileHeroProps {
@@ -10,60 +8,11 @@ interface ProfileHeroProps {
   name: string;
   email: string;
   role: string;
+  avatarUri?: string | null;
+  onPressAvatar?: () => void;
 }
 
-export default function ProfileHero({ colors, name, email, role }: ProfileHeroProps) {
-  const [avatarUri, setAvatarUri] = useState<string | null>(null);
-
-  const handlePickImage = () => {
-    Alert.alert('Change Photo', 'Choose how to update your profile photo', [
-      {
-        text: 'Take Photo',
-        onPress: async () => {
-          const { status } = await ImagePicker.requestCameraPermissionsAsync();
-          if (status !== 'granted') {
-            Alert.alert('Permission needed', 'Camera access is required to take a photo.');
-            return;
-          }
-          const result = await ImagePicker.launchCameraAsync({
-            mediaTypes: ImagePicker.MediaTypeOptions.Images,
-            allowsEditing: true,
-            aspect: [1, 1],
-            quality: 0.8,
-          });
-          if (!result.canceled && result.assets[0]) {
-            setAvatarUri(result.assets[0].uri);
-          }
-        },
-      },
-      {
-        text: 'Choose from Library',
-        onPress: async () => {
-          const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
-          if (status !== 'granted') {
-            Alert.alert('Permission needed', 'Photo library access is required.');
-            return;
-          }
-          const result = await ImagePicker.launchImageLibraryAsync({
-            mediaTypes: ImagePicker.MediaTypeOptions.Images,
-            allowsEditing: true,
-            aspect: [1, 1],
-            quality: 0.8,
-          });
-          if (!result.canceled && result.assets[0]) {
-            setAvatarUri(result.assets[0].uri);
-          }
-        },
-      },
-      {
-        text: 'Remove Photo',
-        style: 'destructive',
-        onPress: () => setAvatarUri(null),
-      },
-      { text: 'Cancel', style: 'cancel' },
-    ]);
-  };
-
+export default function ProfileHero({ colors, name, email, role, avatarUri, onPressAvatar }: ProfileHeroProps) {
   return (
     <View style={{ backgroundColor: colors.primary, paddingHorizontal: 20, paddingTop: 16, paddingBottom: 32 }}>
       <Text style={{ fontSize: 22, fontWeight: '800', color: 'white', letterSpacing: -0.5, marginBottom: 20 }}>
@@ -72,7 +21,7 @@ export default function ProfileHero({ colors, name, email, role }: ProfileHeroPr
       <View style={{ flexDirection: 'row', alignItems: 'center', gap: 16 }}>
 
         {/* Avatar with camera overlay */}
-        <TouchableOpacity onPress={handlePickImage} activeOpacity={0.85} style={{ position: 'relative' }}>
+        <TouchableOpacity onPress={onPressAvatar} activeOpacity={0.85} style={{ position: 'relative' }}>
           {avatarUri ? (
             <Image
               source={{ uri: avatarUri }}
@@ -137,7 +86,7 @@ export default function ProfileHero({ colors, name, email, role }: ProfileHeroPr
 
       {/* Tap hint if no photo set */}
       {!avatarUri && (
-        <TouchableOpacity onPress={handlePickImage} style={{ marginTop: 10, alignSelf: 'flex-start', marginLeft: 0 }}>
+        <TouchableOpacity onPress={onPressAvatar} style={{ marginTop: 10, alignSelf: 'flex-start', marginLeft: 0 }}>
           <Text style={{ fontSize: 11, color: 'rgba(255,255,255,0.6)', marginLeft: 2 }}>
             Tap photo to add picture
           </Text>

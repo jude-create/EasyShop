@@ -1,20 +1,15 @@
 import { Image, Text, TouchableOpacity, View } from 'react-native';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { Product } from '../../constants/products';
+import { getProductBadgeColors } from './productBadge';
+import type { AppColors } from '../../context/ThemeContext';
 
 interface ProductTileProps {
   product: Product;
-  colors: {
-    card: string;
-    border: string;
-    subtle: string;
-    primary: string;
-    text: string;
-    textMuted: string;
-    green: string;
-  };
+  colors: AppColors;
   isDark: boolean;
   wishlisted: boolean;
+  layout?: 'grid' | 'featured';
   onPress: () => void;
   onToggleWishlist: () => void;
   onAddToCart: () => void;
@@ -25,42 +20,56 @@ export default function ProductTile({
   colors,
   isDark,
   wishlisted,
+  layout = 'grid',
   onPress,
   onToggleWishlist,
   onAddToCart,
 }: ProductTileProps) {
+  const isFeaturedLayout = layout === 'featured';
+
   return (
-    <View style={{ width: '50%', padding: 4 }}>
+    <View style={isFeaturedLayout ? { width: 272, marginRight: 12 } : { width: '50%', padding: 4 }}>
       <TouchableOpacity
         activeOpacity={0.85}
         onPress={onPress}
         style={{
           backgroundColor: colors.card,
-          borderRadius: 14,
-          padding: 12,
-          borderWidth: 0.5,
+          borderRadius: isFeaturedLayout ? 24 : 18,
+          padding: isFeaturedLayout ? 14 : 12,
+          borderWidth: 1,
           borderColor: colors.border,
           shadowColor: '#000',
-          shadowOffset: { width: 0, height: 1 },
-          shadowOpacity: isDark ? 0.2 : 0.05,
-          shadowRadius: 4,
-          elevation: 1,
+          shadowOffset: { width: 0, height: 10 },
+          shadowOpacity: isDark ? 0.24 : 0.08,
+          shadowRadius: 16,
+          elevation: 4,
+          overflow: 'hidden',
+          minHeight: isFeaturedLayout ? 330 : 0,
         }}
       >
         {product.badge && (
           <View
             style={{
               position: 'absolute',
-              top: 10,
-              left: 10,
-              backgroundColor: product.badge === 'Hot' ? '#EF4444' : colors.primary,
-              borderRadius: 6,
-              paddingHorizontal: 7,
-              paddingVertical: 2,
+              top: 12,
+              left: 12,
+              backgroundColor: getProductBadgeColors(product.badge).backgroundColor,
+              borderRadius: 999,
+              paddingHorizontal: 9,
+              paddingVertical: 4,
               zIndex: 1,
             }}
           >
-            <Text style={{ color: 'white', fontSize: 9, fontWeight: '700' }}>{product.badge}</Text>
+            <Text
+              style={{
+                color: getProductBadgeColors(product.badge).textColor,
+                fontSize: 10,
+                fontWeight: '700',
+                letterSpacing: 0.2,
+              }}
+            >
+              {product.badge}
+            </Text>
           </View>
         )}
 
@@ -68,13 +77,13 @@ export default function ProductTile({
           onPress={onToggleWishlist}
           style={{
             position: 'absolute',
-            top: 8,
-            right: 8,
+            top: 10,
+            right: 10,
             zIndex: 2,
-            width: 30,
-            height: 30,
-            borderRadius: 9,
-            backgroundColor: wishlisted ? 'rgba(236,72,153,0.12)' : colors.subtle,
+            width: 34,
+            height: 34,
+            borderRadius: 12,
+            backgroundColor: wishlisted ? 'rgba(236,72,153,0.14)' : colors.subtle,
             alignItems: 'center',
             justifyContent: 'center',
           }}
@@ -82,52 +91,77 @@ export default function ProductTile({
         >
           <Ionicons
             name={wishlisted ? 'heart' : 'heart-outline'}
-            size={15}
+            size={16}
             color={wishlisted ? '#EC4899' : colors.textMuted}
           />
         </TouchableOpacity>
 
         <View
           style={{
-            backgroundColor: colors.subtle,
-            borderRadius: 10,
-            height: 90,
+            backgroundColor: isDark ? colors.subtle : colors.primaryLight,
+            borderRadius: isFeaturedLayout ? 18 : 14,
+            height: isFeaturedLayout ? 180 : 96,
             alignItems: 'center',
             justifyContent: 'center',
-            marginBottom: 10,
+            marginBottom: 12,
             overflow: 'hidden',
           }}
         >
-           <Image
-    source={typeof product.image === 'string' ? { uri: product.image } : product.image}
-    style={{ width: 800, height: '100%' }}
-    resizeMode="contain"
-  />
+          <Image
+            source={typeof product.image === 'string' ? { uri: product.image } : product.image}
+            style={{ width: '100%', height: '100%' }}
+            resizeMode="contain"
+          />
         </View>
-        <Text style={{ fontSize: 12, fontWeight: '600', color: colors.text, marginBottom: 2 }} numberOfLines={2}>
+        <Text
+          style={{
+            fontSize: isFeaturedLayout ? 14 : 12,
+            fontWeight: '700',
+            color: colors.text,
+            marginBottom: 4,
+            letterSpacing: -0.2,
+          }}
+          numberOfLines={2}
+        >
           {product.name}
         </Text>
-        <Text style={{ fontSize: 10, color: colors.textMuted, marginBottom: 6 }}>
-          {product.category}
-        </Text>
-        <Text style={{ fontSize: 13, fontWeight: '700', color: colors.primary, marginBottom: 8 }}>
-          {product.price}
-        </Text>
+        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 8 }}>
+          <View
+            style={{
+              backgroundColor: colors.subtle,
+              borderRadius: 999,
+              paddingHorizontal: 8,
+              paddingVertical: 4,
+            }}
+          >
+            <Text style={{ fontSize: 10, color: colors.textMuted, fontWeight: '600' }}>
+              {product.category}
+            </Text>
+          </View>
+        </View>
+        <View style={{ flexDirection: 'row', alignItems: 'flex-end', justifyContent: 'space-between', marginBottom: 10 }}>
+          <Text style={{ fontSize: isFeaturedLayout ? 16 : 13, fontWeight: '800', color: colors.primary }}>
+            {product.price}
+          </Text>
+          {isFeaturedLayout && (
+            <Text style={{ fontSize: 11, color: colors.textMuted, fontWeight: '600' }}>Curated pick</Text>
+          )}
+        </View>
         <TouchableOpacity
           onPress={onAddToCart}
           style={{
             backgroundColor: colors.primary,
-            borderRadius: 8,
-            paddingVertical: 8,
+            borderRadius: 14,
+            paddingVertical: isFeaturedLayout ? 11 : 8,
             alignItems: 'center',
             flexDirection: 'row',
             justifyContent: 'center',
-            gap: 4,
+            gap: 6,
           }}
           activeOpacity={0.85}
         >
-          <Ionicons name="add" size={14} color="white" />
-          <Text style={{ color: 'white', fontSize: 12, fontWeight: '600' }}>Add to Cart</Text>
+          <Ionicons name="add" size={16} color="white" />
+          <Text style={{ color: 'white', fontSize: 12, fontWeight: '700' }}>Add to Cart</Text>
         </TouchableOpacity>
       </TouchableOpacity>
     </View>

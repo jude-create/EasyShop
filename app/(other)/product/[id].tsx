@@ -6,6 +6,18 @@ import { useCart } from '../../../context/CartContext';
 import { useTheme } from '../../../context/ThemeContext';
 import { useWishlist } from '../../../context/WishlistContext';
 import { Product } from '../../../constants/products';
+import { getProductBadgeColors } from '../../../components/tabs/productBadge';
+
+function normalizeStock(stock?: string) {
+  const value = (stock || '').trim().toLowerCase();
+  if (value === 'out of stock') return 'Out of stock';
+  if (value === 'in stock') return 'In stock';
+  return stock || 'Unknown';
+}
+
+function isOutOfStock(stock?: string) {
+  return (stock || '').trim().toLowerCase() === 'out of stock';
+}
 
 export default function ProductDetailScreen() {
   const { product: raw } = useLocalSearchParams<{ product: string }>();
@@ -17,8 +29,13 @@ export default function ProductDetailScreen() {
   const product: Product = raw ? JSON.parse(raw) : {} as Product;
   const cartItem = cart.find((i) => i.id === product.id);
   const wishlisted = isWishlisted(product.id);
+  const unavailable = isOutOfStock(product.stock);
 
   const handleAdd = () => {
+    if (unavailable) {
+      Alert.alert('Unavailable', 'This product is currently out of stock.');
+      return;
+    }
     addToCart(product);
     if (Platform.OS === 'android') {
       ToastAndroid.show(`${product.name} added to cart`, ToastAndroid.SHORT);
@@ -65,13 +82,31 @@ export default function ProductDetailScreen() {
         {/* Hero */}
         <View style={{ backgroundColor: colors.subtle, margin: 16, borderRadius: 20, height: 220, alignItems: 'center', justifyContent: 'center', overflow: 'hidden' }}>
           <Image
-            source={product.image}
+            source={typeof product.image === 'string' ? { uri: product.image } : product.image}
             style={{ width: '100%', height: '100%' }}
             resizeMode="contain"
           />
           {product.badge && (
-            <View style={{ position: 'absolute', top: 14, right: 14, backgroundColor: product.badge === 'Hot' ? '#EF4444' : colors.primary, borderRadius: 8, paddingHorizontal: 10, paddingVertical: 4 }}>
-              <Text style={{ color: 'white', fontSize: 11, fontWeight: '700' }}>{product.badge}</Text>
+            <View
+              style={{
+                position: 'absolute',
+                top: 14,
+                right: 14,
+                backgroundColor: getProductBadgeColors(product.badge).backgroundColor,
+                borderRadius: 8,
+                paddingHorizontal: 10,
+                paddingVertical: 4,
+              }}
+            >
+              <Text
+                style={{
+                  color: getProductBadgeColors(product.badge).textColor,
+                  fontSize: 11,
+                  fontWeight: '700',
+                }}
+              >
+                {product.badge}
+              </Text>
             </View>
           )}
         </View>
@@ -97,7 +132,7 @@ export default function ProductDetailScreen() {
             {[
               ['Brand',    product.name?.split(' ')[0] || 'N/A'],
               ['Category', product.category],
-              ['Status',   'In Stock'],
+              ['Status',   normalizeStock(product.stock)],
               ['Warranty', '1 Year'],
             ].map(([k, v]) => (
               <View key={k} style={{ flexDirection: 'row', justifyContent: 'space-between', paddingVertical: 8, borderBottomWidth: 0.5, borderBottomColor: colors.border }}>
@@ -124,10 +159,21 @@ export default function ProductDetailScreen() {
        
         <TouchableOpacity
           onPress={handleAdd}
-          style={{ flex: 1, backgroundColor: colors.primary, borderRadius: 14, alignItems: 'center', justifyContent: 'center', height: 50 }}
+          disabled={unavailable}
+          style={{
+            flex: 1,
+            backgroundColor: unavailable ? colors.borderStrong : colors.primary,
+            borderRadius: 14,
+            alignItems: 'center',
+            justifyContent: 'center',
+            height: 50,
+            opacity: unavailable ? 0.7 : 1,
+          }}
           activeOpacity={0.85}
         >
-          <Text style={{ color: 'white', fontWeight: '700', fontSize: 16, letterSpacing: -0.2 }}>Add to Cart</Text>
+          <Text style={{ color: 'white', fontWeight: '700', fontSize: 16, letterSpacing: -0.2 }}>
+            {unavailable ? 'Out of Stock' : 'Add to Cart'}
+          </Text>
         </TouchableOpacity>
       </View>
     </SafeAreaView>

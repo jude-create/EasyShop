@@ -3,6 +3,7 @@ import { useRouter } from 'expo-router';
 import { useWishlist } from '../../context/WishlistContext';
 import { useCart } from '../../context/CartContext';
 import { useTheme } from '../../context/ThemeContext';
+import { useTabBarScrollHandler } from '../../context/TabBarScrollContext';
 import { Product, formatPrice } from '../../constants/products';
 import TabShell from '../../components/tabs/TabShell';
 import TabEmptyState from '../../components/tabs/TabEmptyState';
@@ -24,6 +25,7 @@ export default function WishlistScreen() {
   const { wishlist, removeFromWishlist, totalWishlistItems } = useWishlist();
   const { addToCart, cart } = useCart();
   const { colors, isDark } = useTheme();
+  const tabBarScrollHandler = useTabBarScrollHandler();
 
   const handleMoveToCart = (product: Product) => {
     addToCart(product);
@@ -80,7 +82,7 @@ export default function WishlistScreen() {
           onActionPress={() => router.push('/(tabs)/products')}
         />
       ) : (
-        <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ padding: 16, gap: 12, paddingBottom: 32 }}>
+        <ScrollView {...tabBarScrollHandler} showsVerticalScrollIndicator={false} contentContainerStyle={{ padding: 16, gap: 12, paddingBottom: 32 }}>
           {wishlist.map((product) => (
             <WishlistItemCard
               key={product.id}

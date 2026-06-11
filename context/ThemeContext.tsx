@@ -34,6 +34,8 @@ export const lightColors = {
   successLight: '#F0FDF4',
 };
 
+export type AppColors = typeof lightColors;
+
 export const darkColors: typeof lightColors = {
   background: '#111110',
   card: '#1C1C1A',

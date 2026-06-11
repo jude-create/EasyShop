@@ -14,8 +14,8 @@ const ProductCard = ({ product }: ProductCardProps) => {
 
   const handleProductPress = (product: Product) => {
     router.push({
-      pathname: `/product/${product.id}`,
-      params: { product: JSON.stringify(product) },
+      pathname: '/product/[id]',
+      params: { id: product.id, product: JSON.stringify(product) },
     });
   };
 
@@ -35,7 +35,7 @@ const ProductCard = ({ product }: ProductCardProps) => {
       activeOpacity={0.7}
     >
       <View className="w-20 h-20 bg-gray-100 rounded-xl justify-center items-center mr-4">
-        <Image source={product.image} className="w-full h-full" resizeMode="contain" />
+        <Image source={typeof product.image === 'string' ? { uri: product.image } : product.image} className="w-full h-full" resizeMode="contain" />
       </View>
 
       <View className="flex-1 justify-between">

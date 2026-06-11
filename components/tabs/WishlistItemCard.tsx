@@ -1,20 +1,11 @@
 import { Image, Text, TouchableOpacity, View } from 'react-native';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { Product } from '../../constants/products';
+import type { AppColors } from '../../context/ThemeContext';
 
 interface WishlistItemCardProps {
   product: Product;
-  colors: {
-    card: string;
-    border: string;
-    subtle: string;
-    primary: string;
-    primaryLight: string;
-    text: string;
-    textMuted: string;
-    textSecondary: string;
-    green: string;
-  };
+  colors: AppColors;
   isDark: boolean;
   inCart: boolean;
   onPress: () => void;
@@ -63,7 +54,7 @@ export default function WishlistItemCard({
               overflow: 'hidden',
             }}
           >
-            <Image source={product.image} style={{ width: '100%', height: '100%' }} resizeMode="contain" />
+            <Image source={typeof product.image === 'string' ? { uri: product.image } : product.image} style={{ width: '100%', height: '100%' }} resizeMode="contain" />
             {product.badge && (
               <View
                 style={{

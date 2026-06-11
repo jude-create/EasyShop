@@ -1,20 +1,13 @@
 import { Image, Text, TouchableOpacity, View } from 'react-native';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { Order } from '../../types/order';
+import type { AppColors } from '../../context/ThemeContext';
 import { formatPrice } from '../../constants/products';
 import FlowStatusBadge from './FlowStatusBadge';
 
 interface FlowOrderCardProps {
   order: Order;
-  colors: {
-    card: string;
-    border: string;
-    subtle: string;
-    text: string;
-    textMuted: string;
-    textSecondary: string;
-    primary: string;
-  };
+  colors: AppColors;
   isDark: boolean;
   onPress: () => void;
 }
@@ -116,4 +109,3 @@ export default function FlowOrderCard({
     </TouchableOpacity>
   );
 }
-

@@ -1,9 +1,11 @@
 import { Tabs } from 'expo-router';
-import { View, Text, Platform } from 'react-native';
+import { useEffect, useRef, useState } from 'react';
+import { Animated, View, Text, Platform } from 'react-native';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { useCart } from '../../context/CartContext';
 import { useWishlist } from '../../context/WishlistContext';
 import { useTheme } from '../../context/ThemeContext';
+import { TabBarScrollProvider, useTabBarVisibility } from '../../context/TabBarScrollContext';
 
 function CartTabIcon({ color, focused }: { color: string; focused: boolean }) {
   const { totalItems } = useCart();
@@ -37,22 +39,56 @@ function WishlistTabIcon({ color, focused }: { color: string; focused: boolean }
   );
 }
 
-export default function TabsLayout() {
+const TAB_BAR_HEIGHT = Platform.OS === 'ios' ? 82 : 72;
+
+function TabsNavigator() {
   const { colors } = useTheme();
+  const { isTabBarHidden } = useTabBarVisibility();
+  const [isTabBarCollapsed, setIsTabBarCollapsed] = useState(false);
+  const tabBarOffset = useRef(new Animated.Value(0)).current;
+  const tabBarOpacity = useRef(new Animated.Value(1)).current;
+
+  useEffect(() => {
+    if (!isTabBarHidden) {
+      setIsTabBarCollapsed(false);
+    }
+
+    Animated.parallel([
+      Animated.timing(tabBarOffset, {
+        toValue: isTabBarHidden ? TAB_BAR_HEIGHT + 16 : 0,
+        duration: 220,
+        useNativeDriver: true,
+      }),
+      Animated.timing(tabBarOpacity, {
+        toValue: isTabBarHidden ? 0 : 1,
+        duration: 180,
+        useNativeDriver: true,
+      }),
+    ]).start(({ finished }) => {
+      if (finished && isTabBarHidden) {
+        setIsTabBarCollapsed(true);
+      }
+    });
+  }, [isTabBarHidden, tabBarOffset, tabBarOpacity]);
 
   return (
     <Tabs
       screenOptions={{
         headerShown: false,
+        sceneStyle: { backgroundColor: colors.background },
         tabBarStyle: {
-          backgroundColor: colors.tabBg,
-          borderTopColor: colors.border,
-          borderTopWidth: 0.5,
-          height: Platform.OS === 'ios' ? 82 : 62,
-          paddingBottom: Platform.OS === 'ios' ? 24 : 8,
-          paddingTop: 8,
+          display: isTabBarCollapsed ? 'none' : 'flex',
+          backgroundColor: isTabBarCollapsed ? 'transparent' : colors.tabBg,
+          borderTopColor: isTabBarCollapsed ? 'transparent' : colors.border,
+          borderTopWidth: isTabBarCollapsed ? 0 : 0.5,
+          height: isTabBarCollapsed ? 0 : TAB_BAR_HEIGHT,
+          paddingBottom: isTabBarCollapsed ? 0 : Platform.OS === 'ios' ? 24 : 24,
+          paddingTop: isTabBarCollapsed ? 0 : 8,
           elevation: 0,
           shadowOpacity: 0,
+          opacity: tabBarOpacity as any,
+          transform: [{ translateY: tabBarOffset as any }],
+          overflow: 'hidden',
         },
         tabBarActiveTintColor: colors.primary,
         tabBarInactiveTintColor: colors.textMuted,
@@ -106,5 +142,13 @@ export default function TabsLayout() {
         }}
       />
     </Tabs>
+  );
+}
+
+export default function TabsLayout() {
+  return (
+    <TabBarScrollProvider>
+      <TabsNavigator />
+    </TabBarScrollProvider>
   );
 }

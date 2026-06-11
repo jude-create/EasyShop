@@ -1,4 +1,4 @@
-import { Text, TouchableOpacity, View } from 'react-native';
+import { Image, Text, TouchableOpacity, View } from 'react-native';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { CartItem } from '../../context/CartContext';
 import { formatPrice } from '../../constants/products';
@@ -56,7 +56,11 @@ export default function CartItemRow({
           justifyContent: 'center',
         }}
       >
-        <Text style={{ fontSize: 28 }}>{item.image}</Text>
+        <Image
+          source={typeof item.image === 'string' ? { uri: item.image } : item.image}
+          style={{ width: '100%', height: '100%' }}
+          resizeMode="contain"
+        />
       </View>
 
       <View style={{ flex: 1 }}>
@@ -96,4 +100,3 @@ export default function CartItemRow({
     </View>
   );
 }
-

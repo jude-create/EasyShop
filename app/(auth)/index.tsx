@@ -1,4 +1,4 @@
-import { Text, TouchableOpacity, View } from 'react-native';
+import { Alert, Text, TouchableOpacity, View } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useState } from 'react';
 import { useTheme } from '../../context/ThemeContext';
@@ -9,7 +9,6 @@ import AuthButton from '../../components/auth/AuthButton';
 import GoogleAuthButton from '../../components/auth/GoogleAuthButton';
 import { validateLogin, type LoginFormErrors } from '../../components/auth/authUtils';
 import { loginWithEmail, loginWithGoogle } from '../../components/auth/googleAuth';
-import { Alert } from 'react-native';
 
 
 
@@ -20,6 +19,7 @@ export default function LoginScreen() {
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [googleLoading, setGoogleLoading] = useState(false);
   const [focusedField, setFocusedField] = useState<string | null>(null);
   const [errors, setErrors] = useState<LoginFormErrors>({});
   const [submitted, setSubmitted] = useState(false);
@@ -43,7 +43,6 @@ export default function LoginScreen() {
   setLoading(true);
   try {
     await loginWithEmail(email, password);
-    router.replace('/(tabs)/home');
   } catch (e: any) {
     Alert.alert('Login failed', e.message);
   } finally {
@@ -54,7 +53,6 @@ export default function LoginScreen() {
 const handleGoogleSuccess = async () => {
   try {
     await loginWithGoogle();
-    router.replace('/(tabs)/home');
   } catch (e: any) {
     Alert.alert('Google sign-in failed', e.message);
   }
@@ -63,7 +61,12 @@ const handleGoogleSuccess = async () => {
   
 
   return (
-    <AuthScreen backgroundColor={colors.primary} contentBackgroundColor={colors.background}>
+    <AuthScreen
+      backgroundColor={colors.primary}
+      contentBackgroundColor={colors.background}
+      loading={loading || googleLoading}
+      loadingLabel="Signing you in..."
+    >
       <AuthHeader
         colors={colors}
         title="CW RETAIL"
@@ -156,6 +159,7 @@ const handleGoogleSuccess = async () => {
             textMuted: colors.textMuted,
           }}
           onSuccess={handleGoogleSuccess}
+          onLoadingChange={setGoogleLoading}
         />
 
         <TouchableOpacity
