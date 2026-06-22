@@ -2,6 +2,10 @@
 
 EasyShop POS is an Expo React Native shopping app for browsing live products, managing a cart and wishlist, checking out, and syncing customer data with a Strapi backend. The app uses Firebase Authentication for account identity, Strapi for catalog and customer records, and local storage for a smoother mobile experience.
 
+[![Expo SDK 54](https://img.shields.io/badge/Expo%20SDK-54-000020?logo=expo&logoColor=white)](https://expo.dev/)
+[![React Native 0.81](https://img.shields.io/badge/React%20Native-0.81-61DAFB?logo=react&logoColor=black)](https://reactnative.dev/)
+[![Android](https://img.shields.io/badge/Platform-Android-3DDC84?logo=android&logoColor=white)](https://expo.dev/accounts/jude_create/projects/EasyShopPOS/builds/8a76af16-d6bb-472a-8f2a-fcc351f06bb4)
+
 ## Highlights
 
 - Firebase email/password and Google sign-in
@@ -17,6 +21,14 @@ EasyShop POS is an Expo React Native shopping app for browsing live products, ma
 - Dark and light theme support
 - Bottom tab navigation that hides while scrolling
 - Local persistence for cart, wishlist, orders, addresses, and profile cache
+
+## Video Demo
+
+[Watch the EasyShop POS demo on YouTube](https://youtube.com/shorts/NzY-B8-ho8M?feature=share)
+
+## Android Build
+
+[View and download the latest Android build on Expo](https://expo.dev/accounts/jude_create/projects/EasyShopPOS/builds/8a76af16-d6bb-472a-8f2a-fcc351f06bb4)
 
 ## Screenshots
 
@@ -263,7 +275,3 @@ This project demonstrates:
 - Production Paystack keys, webhooks, and server-side payment reconciliation
 - Order tracking updates from backend status changes
 
-
-## License
-
-This project is for learning and portfolio use.
