@@ -24,7 +24,7 @@ EasyShop POS is an Expo React Native shopping app for browsing live products, ma
 
 ## Video Demo
 
-[Watch the EasyShop POS demo on YouTube](https://youtube.com/shorts/NzY-B8-ho8M?feature=share)
+[Watch the EasyShop POS demo on YouTube](https://youtube.com/shorts/vZ4CNLx-N_A?feature=share)
 
 ## Android Build
 
