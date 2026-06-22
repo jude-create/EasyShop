@@ -8,6 +8,7 @@ export interface CartItem extends Product {
 
 interface CartContextType {
   cart: CartItem[];
+  hydrated: boolean;
   addToCart: (product: Product) => void;
   removeFromCart: (productId: number) => void;
   updateQuantity: (productId: number, quantity: number) => void;
@@ -18,6 +19,7 @@ interface CartContextType {
 
 const CartContext = createContext<CartContextType>({
   cart: [],
+  hydrated: false,
   addToCart: () => {},
   removeFromCart: () => {},
   updateQuantity: () => {},
@@ -113,6 +115,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     <CartContext.Provider
       value={{
         cart,
+        hydrated,
         addToCart,
         removeFromCart,
         updateQuantity,

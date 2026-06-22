@@ -4,7 +4,7 @@
     "slug": "EasyShopPOS",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/images/icon.png",
+    "icon": "./assets/images/cw-retail-icon.png",
     "scheme": "easyshoppos",
     "userInterfaceStyle": "automatic",
     "ios": {
@@ -17,9 +17,8 @@
     },
     "android": {
       "adaptiveIcon": {
-        "backgroundColor": "#E6F4FE",
-        "foregroundImage": "./assets/images/android-icon-foreground.png",
-        "backgroundImage": "./assets/images/android-icon-background.png",
+        "backgroundColor": "#006AE8",
+        "foregroundImage": "./assets/images/cw-retail-icon.png",
         "monochromeImage": "./assets/images/android-icon-monochrome.png"
       },
       "edgeToEdgeEnabled": true,

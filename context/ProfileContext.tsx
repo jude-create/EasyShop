@@ -113,6 +113,10 @@ export function ProfileProvider({ children }: { children: ReactNode }) {
         avatarUrl: firebaseUser.photoURL || null,
       };
 
+      // Make the authenticated session usable immediately. Cached/remote profile
+      // data and notification registration can continue without blocking navigation.
+      setProfile(baseProfile);
+
       try {
         const cachedProfile = await AsyncStorage.getItem(getProfileStorageKey(firebaseUser.uid));
         if (cachedProfile) {
@@ -185,13 +189,12 @@ export function ProfileProvider({ children }: { children: ReactNode }) {
   );
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
+    const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
       setAuthLoading(true);
-      try {
-        await hydrateProfile(firebaseUser);
-      } finally {
-        setAuthLoading(false);
-      }
+      void hydrateProfile(firebaseUser);
+      // hydrateProfile sets the Firebase-derived profile before its first await,
+      // so navigation can continue while Strapi/profile work runs in background.
+      setAuthLoading(false);
     });
 
     return unsubscribe;

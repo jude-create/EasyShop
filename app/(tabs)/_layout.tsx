@@ -56,12 +56,12 @@ function TabsNavigator() {
     Animated.parallel([
       Animated.timing(tabBarOffset, {
         toValue: isTabBarHidden ? TAB_BAR_HEIGHT + 16 : 0,
-        duration: 220,
+        duration: 250,
         useNativeDriver: true,
       }),
       Animated.timing(tabBarOpacity, {
         toValue: isTabBarHidden ? 0 : 1,
-        duration: 180,
+        duration: 250,
         useNativeDriver: true,
       }),
     ]).start(({ finished }) => {

@@ -13,20 +13,40 @@ const TabBarScrollContext = createContext<TabBarScrollContextValue | null>(null)
 export function TabBarScrollProvider({ children }: { children: ReactNode }) {
   const [isTabBarHidden, setIsTabBarHidden] = useState(false);
   const lastOffsetY = useRef(0);
+  const scrollDistance = useRef(0);
+  const scrollDirection = useRef<'up' | 'down' | null>(null);
 
   const showTabBar = useCallback(() => {
     setIsTabBarHidden(false);
+    lastOffsetY.current = 0;
+    scrollDistance.current = 0;
+    scrollDirection.current = null;
   }, []);
 
   const handleScroll = useCallback(
     (event: NativeSyntheticEvent<NativeScrollEvent>) => {
       const offsetY = Math.max(0, event.nativeEvent.contentOffset.y);
       const delta = offsetY - lastOffsetY.current;
+      const nextDirection = delta > 0 ? 'down' : delta < 0 ? 'up' : null;
 
-      if (offsetY < 24 || delta < -8) {
+      if (offsetY < 24) {
         setIsTabBarHidden(false);
-      } else if (offsetY > 80 && delta > 8) {
+        scrollDistance.current = 0;
+      } else if (nextDirection) {
+        if (scrollDirection.current !== nextDirection) {
+          scrollDirection.current = nextDirection;
+          scrollDistance.current = 0;
+        }
+
+        scrollDistance.current += Math.abs(delta);
+      }
+
+      if (nextDirection === 'down' && offsetY > 80 && scrollDistance.current >= 24) {
         setIsTabBarHidden(true);
+        scrollDistance.current = 0;
+      } else if (nextDirection === 'up' && scrollDistance.current >= 32) {
+        setIsTabBarHidden(false);
+        scrollDistance.current = 0;
       }
 
       lastOffsetY.current = offsetY;
@@ -48,7 +68,7 @@ export function TabBarScrollProvider({ children }: { children: ReactNode }) {
 
 export function useTabBarScrollHandler(): Pick<
   ScrollViewProps,
-  'onScroll' | 'onScrollBeginDrag' | 'onScrollEndDrag' | 'onMomentumScrollEnd' | 'scrollEventThrottle'
+  'onScroll' | 'scrollEventThrottle'
 > {
   const context = useContext(TabBarScrollContext);
 
@@ -68,9 +88,6 @@ export function useTabBarScrollHandler(): Pick<
   return useMemo(
     () => ({
       onScroll: handleScroll,
-      onScrollBeginDrag: handleScroll,
-      onScrollEndDrag: handleScroll,
-      onMomentumScrollEnd: handleScroll,
       scrollEventThrottle: 16,
     }),
     [handleScroll],

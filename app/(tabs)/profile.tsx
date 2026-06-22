@@ -71,7 +71,7 @@ export default function ProfileScreen() {
 
   return (
     <TabShell backgroundColor={colors.primary} contentBackgroundColor={colors.background}>
-      <ScrollView {...tabBarScrollHandler} showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 32 }}>
+      <ScrollView {...tabBarScrollHandler} showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 82}}>
         <ProfileHero
           colors={colors}
           name={profileLoading ? 'Loading profile...' : displayName}
@@ -159,11 +159,9 @@ export default function ProfileScreen() {
           <Text style={{ fontSize: 15, fontWeight: '600', color: colors.danger }}>Sign Out</Text>
         </TouchableOpacity>
 
-        <Text style={{ textAlign: 'center', fontSize: 11, color: colors.textMuted, marginTop: 16 }}>
-          CW Retail v2.0.0 · Built with Expo
-        </Text>
+       
 
-        <View style={{ height: 24 }} />
+        
       </ScrollView>
     </TabShell>
   );

@@ -82,7 +82,7 @@ export default function WishlistScreen() {
           onActionPress={() => router.push('/(tabs)/products')}
         />
       ) : (
-        <ScrollView {...tabBarScrollHandler} showsVerticalScrollIndicator={false} contentContainerStyle={{ padding: 16, gap: 12, paddingBottom: 32 }}>
+        <ScrollView {...tabBarScrollHandler} showsVerticalScrollIndicator={false} contentContainerStyle={{ padding: 16, gap: 12, paddingBottom: 82 }}>
           {wishlist.map((product) => (
             <WishlistItemCard
               key={product.id}

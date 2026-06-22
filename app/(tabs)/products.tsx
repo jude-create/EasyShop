@@ -4,7 +4,6 @@ import { useRouter } from 'expo-router';
 import { useCart } from '../../context/CartContext';
 import { useTheme } from '../../context/ThemeContext';
 import { useWishlist } from '../../context/WishlistContext';
-import { useProfile } from '../../context/ProfileContext';
 import { PRODUCTS, CATEGORIES } from '../../constants/products';
 import { fetchStrapiCategories, fetchStrapiProducts, type StrapiCategory } from '../../lib/strapi';
 import { useTabBarScrollHandler } from '../../context/TabBarScrollContext';
@@ -15,6 +14,7 @@ import TabEmptyState from '../../components/tabs/TabEmptyState';
 import ProductTile from '../../components/tabs/ProductTile';
 import InfoBanner from '../../components/tabs/InfoBanner';
 import AsyncStateCard from '../../components/tabs/AsyncStateCard';
+import ProductGridSkeleton from '../../components/tabs/ProductGridSkeleton';
 import Ionicons from '@expo/vector-icons/Ionicons';
 
 function showToast(msg: string) {
@@ -31,7 +31,6 @@ export default function ProductsScreen() {
   const { addToCart } = useCart();
   const { colors, isDark } = useTheme();
   const { toggleWishlist, isWishlisted } = useWishlist();
-  const { authLoading } = useProfile();
   const [search, setSearch] = useState('');
   const [activeCategory, setActiveCategory] = useState('All');
   const [products, setProducts] = useState<typeof PRODUCTS>([]);
@@ -43,8 +42,6 @@ export default function ProductsScreen() {
   const tabBarScrollHandler = useTabBarScrollHandler();
 
   const loadCatalog = useCallback(async (fromRefresh = false) => {
-    if (authLoading) return;
-
     // Use one loader for both the initial fetch and pull-to-refresh so the UI stays consistent.
     if (fromRefresh) {
       setRefreshing(true);
@@ -53,11 +50,15 @@ export default function ProductsScreen() {
     }
 
     try {
-      // Fetch categories and products together so the filters always match the visible catalog.
-      const [remoteCategories, remoteProducts] = await Promise.all([
-        fetchStrapiCategories(),
-        fetchStrapiProducts(),
-      ]);
+      // Products are the critical request. Categories load independently so a
+      // slow category response never keeps the catalog grid empty.
+      const categoriesPromise = fetchStrapiCategories().catch((error) => {
+        if (__DEV__) {
+          console.warn('Failed to load catalog categories', error);
+        }
+        return [] as StrapiCategory[];
+      });
+      const remoteProducts = await fetchStrapiProducts();
 
       if (!mountedRef.current) return;
 
@@ -67,11 +68,16 @@ export default function ProductsScreen() {
         setProducts((current) => (current.length > 0 ? current : PRODUCTS));
       }
 
+      setRemoteError(null);
+      setLoadingRemote(false);
+
+      const remoteCategories = await categoriesPromise;
+      if (!mountedRef.current) return;
+
       const nextCategories = new Set<string>(['All', ...CATEGORIES]);
       remoteCategories.forEach((category: StrapiCategory) => nextCategories.add(category.name));
       remoteProducts.forEach((product) => nextCategories.add(product.category));
       setCategories(Array.from(nextCategories));
-      setRemoteError(null);
     } catch (error) {
       if (__DEV__) {
         console.warn('Failed to load catalog', error);
@@ -88,18 +94,16 @@ export default function ProductsScreen() {
         setLoadingRemote(false);
       }
     }
-  }, [authLoading]);
+  }, []);
 
   useEffect(() => {
-    if (authLoading) return;
-
     // Load the catalog once on mount and guard against state updates after unmount.
     loadCatalog();
 
     return () => {
       mountedRef.current = false;
     };
-  }, [authLoading, loadCatalog]);
+  }, [loadCatalog]);
 
   const filtered = useMemo(() => {
     // Combine search and category filtering in one memo so rendering stays cheap.
@@ -134,17 +138,11 @@ export default function ProductsScreen() {
         {...tabBarScrollHandler}
         showsVerticalScrollIndicator={false}
         refreshControl={<RefreshControl refreshing={refreshing} onRefresh={() => loadCatalog(true)} tintColor={colors.primary} />}
-        contentContainerStyle={{ paddingHorizontal: 12, paddingBottom: 24 }}
+        contentContainerStyle={{ paddingHorizontal: 12, paddingBottom: 82}}
       >
         {loadingRemote && products.length === 0 ? (
-          // Show a friendly loading state only when we have nothing else to display.
-          <View style={{ paddingHorizontal: 4, paddingTop: 12 }}>
-            <AsyncStateCard
-              colors={colors}
-              tone="loading"
-                title={authLoading ? 'Preparing your catalog' : 'Loading live catalog'}
-                description={authLoading ? 'Restoring your session before fetching products.' : 'Fetching products and categories.'}
-            />
+          <View style={{ paddingTop: 8 }}>
+            <ProductGridSkeleton colors={colors} isDark={isDark} />
           </View>
         ) : (
           <>

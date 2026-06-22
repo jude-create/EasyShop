@@ -16,7 +16,16 @@ export async function requestStrapiJson<T>(path: string, init?: RequestInit): Pr
     ...init,
   });
 
-  const payload = await response.json();
+  const rawPayload = await response.text();
+  let payload: any = {};
+
+  if (rawPayload) {
+    try {
+      payload = JSON.parse(rawPayload);
+    } catch {
+      payload = { error: { message: rawPayload } };
+    }
+  }
 
   if (!response.ok) {
     throw new Error(payload?.error?.message || 'Strapi request failed');

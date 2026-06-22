@@ -13,6 +13,14 @@ const STRAPI_URL = (process.env.EXPO_PUBLIC_STRAPI_URL || DEFAULT_STRAPI_URL || 
   .replace(/^['"]|['"]$/g, '')
   .replace(/\/$/, '');
 const FALLBACK_IMAGE = require('../assets/images/icon.png');
+const CATALOG_CACHE_MS = 5 * 60 * 1000;
+
+// Share fresh results and in-flight requests between Home and Products so
+// navigating between tabs does not trigger duplicate catalog downloads.
+let productsCache: { data: Product[]; savedAt: number } | null = null;
+let productsRequest: Promise<Product[]> | null = null;
+let categoriesCache: { data: StrapiCategory[]; savedAt: number } | null = null;
+let categoriesRequest: Promise<StrapiCategory[]> | null = null;
 
 export interface StrapiCategory {
   id: number;
@@ -73,17 +81,46 @@ async function fetchWithTimeout(url: string, timeoutMs = 12000) {
   }
 }
 
-async function fetchStrapi<T>(path: string): Promise<T[]> {
-  // The helper normalizes Strapi list responses into a simple array for the rest of the app.
-  const response = await fetchWithTimeout(buildUrl(path));
-  const payload = await response.json();
+function wait(ms: number) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
 
-  if (!response.ok) {
-    throw new Error(payload?.error?.message || 'Failed to load data from Strapi');
+async function fetchStrapi<T>(path: string): Promise<T[]> {
+  // Retry transient network/server failures so a cold Strapi instance does not
+  // force the user to press Try Again.
+  for (let attempt = 1; attempt <= 3; attempt += 1) {
+    try {
+      const response = await fetchWithTimeout(buildUrl(path));
+      const rawPayload = await response.text();
+      let payload: any;
+
+      try {
+        payload = rawPayload ? JSON.parse(rawPayload) : {};
+      } catch {
+        const preview = rawPayload.trim().slice(0, 160);
+        throw new Error(preview || `Strapi returned a non-JSON response (${response.status})`);
+      }
+
+      if (!response.ok) {
+        const error = new Error(payload?.error?.message || 'Failed to load data from Strapi');
+        if (response.status < 500 && response.status !== 429) {
+          throw Object.assign(error, { retryable: false });
+        }
+        throw error;
+      }
+
+      const items = payload?.data ?? [];
+      return Array.isArray(items) ? items : [items];
+    } catch (error: any) {
+      if (error?.retryable === false || attempt === 3) {
+        throw error;
+      }
+
+      await wait(attempt * 1200);
+    }
   }
 
-  const items = payload?.data ?? [];
-  return Array.isArray(items) ? items : [items];
+  return [];
 }
 
 function getCategoryName(category: StrapiRelation | undefined): string {
@@ -113,48 +150,87 @@ function getMediaSource(image: StrapiProductRecord['image']): ImageSourcePropTyp
 }
 
 export async function fetchStrapiCategories(): Promise<StrapiCategory[]> {
+  if (categoriesCache && Date.now() - categoriesCache.savedAt < CATALOG_CACHE_MS) {
+    return categoriesCache.data;
+  }
+  if (categoriesRequest) return categoriesRequest;
+
   // Categories are normalized into a tiny shape because the UI only needs id, name, and slug.
-  const categories = await fetchStrapi<{
-    id: number;
-    name?: string;
-    slug?: string;
-    attributes?: {
+  categoriesRequest = fetchStrapi<{
+      id: number;
       name?: string;
       slug?: string;
-    };
-  }>('/api/categories?sort=name:asc');
+      attributes?: {
+        name?: string;
+        slug?: string;
+      };
+    }>('/api/categories?sort=name:asc')
+    .then((categories) =>
+      categories
+        .map((category) => ({
+          id: category.id,
+          name: category.name || category.attributes?.name || '',
+          slug: category.slug || category.attributes?.slug,
+        }))
+        .filter((category) => category.name),
+    )
+    .then((categories) => {
+      categoriesCache = { data: categories, savedAt: Date.now() };
+      return categories;
+    })
+    .finally(() => {
+      categoriesRequest = null;
+    });
 
-  return categories
-    .map((category) => ({
-      id: category.id,
-      name: category.name || category.attributes?.name || '',
-      slug: category.slug || category.attributes?.slug,
-    }))
-    .filter((category) => category.name);
+  return categoriesRequest;
 }
 
 export async function fetchStrapiProducts(): Promise<Product[]> {
+  if (productsCache && Date.now() - productsCache.savedAt < CATALOG_CACHE_MS) {
+    return productsCache.data;
+  }
+  if (productsRequest) return productsRequest;
+
   // Products are transformed once here so every screen can consume the same app-ready model.
-  const products = await fetchStrapi<StrapiProductRecord>(
-    '/api/products?fields[0]=name&fields[1]=description&fields[2]=price&fields[3]=badge&fields[4]=stock&fields[5]=isFeatured&populate[category][fields][0]=name&populate[category][fields][1]=slug&populate[image]=true',
-  );
+  productsRequest = fetchStrapi<StrapiProductRecord>(
+      '/api/products?fields[0]=name&fields[1]=description&fields[2]=price&fields[3]=badge&fields[4]=stock&fields[5]=isFeatured&populate[category][fields][0]=name&populate[category][fields][1]=slug&populate[image]=true',
+    )
+    .then((products) =>
+      products.map((product) => {
+        const priceValue = Number(product.price ?? 0);
 
-  return products.map((product) => {
-    const priceValue = Number(product.price ?? 0);
+        return {
+          id: product.id,
+          image: getMediaSource(product.image),
+          name: product.name ?? 'Untitled Product',
+          description: product.description ?? '',
+          price: formatPrice(priceValue),
+          priceValue,
+          category: getCategoryName(product.category),
+          badge: product.badge,
+          stock: product.stock,
+          isFeatured: Boolean(product.isFeatured),
+        };
+      }),
+    )
+    .then((products) => {
+      productsCache = { data: products, savedAt: Date.now() };
+      return products;
+    })
+    .finally(() => {
+      productsRequest = null;
+    });
 
-    return {
-      id: product.id,
-      image: getMediaSource(product.image),
-      name: product.name ?? 'Untitled Product',
-      description: product.description ?? '',
-      price: formatPrice(priceValue),
-      priceValue,
-      category: getCategoryName(product.category),
-      badge: product.badge,
-      stock: product.stock,
-      isFeatured: Boolean(product.isFeatured),
-    };
-  });
+  return productsRequest;
+}
+
+export async function prefetchStrapiCatalog() {
+  // Warm both public endpoints during app startup. Home and Products reuse the
+  // same in-flight promises, so this does not create duplicate requests.
+  await Promise.allSettled([
+    fetchStrapiProducts(),
+    fetchStrapiCategories(),
+  ]);
 }
 
 export { STRAPI_URL };

@@ -56,7 +56,7 @@ export default function CartScreen() {
         />
       ) : (
         <>
-          <ScrollView {...tabBarScrollHandler} showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 8 }}>
+          <ScrollView {...tabBarScrollHandler} showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 72 }}>
             {deliveryFee > 0 ? (
               <InfoBanner
                 colors={colors}

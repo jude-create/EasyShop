@@ -1,11 +1,11 @@
 import { Stack, useRouter, useSegments } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { ReactNode, useEffect } from 'react';
-import { ActivityIndicator, Text, View } from 'react-native';
 import * as Notifications from 'expo-notifications';
+import * as SplashScreen from 'expo-splash-screen';
 import * as SystemUI from 'expo-system-ui';
 import './global.css';
-import { CartProvider } from '../context/CartContext';
+import { CartProvider, useCart } from '../context/CartContext';
 import { ThemeProvider, useTheme } from '../context/ThemeContext';
 import { WishlistProvider } from '../context/WishlistContext';
 import { ProfileProvider, useProfile } from '../context/ProfileContext';
@@ -13,10 +13,12 @@ import { OrderHistoryProvider } from '../context/OrderHistoryContext';
 import { SavedAddressesProvider } from '../context/SavedAddressesContext';
 import { configureGoogleSignIn } from '../components/auth/googleAuth';
 import { configureNotifications } from '../lib/notifications';
+import { prefetchStrapiCatalog } from '../lib/strapi';
 
 // Outside any component, at the top level:
 configureGoogleSignIn();
 configureNotifications();
+void SplashScreen.preventAutoHideAsync().catch(() => {});
 
 function AppStack() {
   const { colors, isDark } = useTheme();
@@ -44,14 +46,23 @@ function AppStack() {
   );
 }
 
+function CatalogWarmup() {
+  useEffect(() => {
+    void prefetchStrapiCatalog();
+  }, []);
+
+  return null;
+}
+
 function AuthGate({ children }: { children: ReactNode }) {
   const router = useRouter();
   const segments = useSegments();
-  const { colors } = useTheme();
   const { authLoading, profile } = useProfile();
+  const { hydrated: cartHydrated } = useCart();
+  const appReady = !authLoading && cartHydrated;
 
   useEffect(() => {
-    if (authLoading) return;
+    if (!appReady) return;
 
     const inAuthGroup = segments[0] === '(auth)';
 
@@ -60,16 +71,15 @@ function AuthGate({ children }: { children: ReactNode }) {
     } else if (!profile && !inAuthGroup) {
       router.replace('/(auth)');
     }
-  }, [authLoading, profile, router, segments]);
+  }, [appReady, profile, router, segments]);
 
-  if (authLoading) {
-    return (
-      <View style={{ flex: 1, backgroundColor: colors.background, alignItems: 'center', justifyContent: 'center', padding: 24 }}>
-        <ActivityIndicator size="large" color={colors.primary} />
-        <Text style={{ marginTop: 16, color: colors.text, fontSize: 16 }}>Loading...</Text>
-      </View>
-    );
-  }
+  useEffect(() => {
+    if (appReady) {
+      void SplashScreen.hideAsync().catch(() => {});
+    }
+  }, [appReady]);
+
+  if (!appReady) return null;
 
   return <>{children}</>;
 }
@@ -117,20 +127,21 @@ function NotificationBridge() {
 export default function RootLayout() {
   return (
     <ThemeProvider>
-      <WishlistProvider>
+      <ProfileProvider>
         <CartProvider>
-          <ProfileProvider>
+          <WishlistProvider>
             <SavedAddressesProvider>
               <OrderHistoryProvider>
+                <CatalogWarmup />
                 <AuthGate>
                   <NotificationBridge />
                   <AppStack />
                 </AuthGate>
               </OrderHistoryProvider>
             </SavedAddressesProvider>
-          </ProfileProvider>
+          </WishlistProvider>
         </CartProvider>
-      </WishlistProvider>
+      </ProfileProvider>
     </ThemeProvider>
   );
 }

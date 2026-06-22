@@ -5,7 +5,6 @@ import { useTheme } from '../../context/ThemeContext';
 import { useCart } from '../../context/CartContext';
 import { useWishlist } from '../../context/WishlistContext';
 import { useOrderHistory } from '../../context/OrderHistoryContext';
-import { useProfile } from '../../context/ProfileContext';
 import { PRODUCTS } from '../../constants/products';
 import { fetchStrapiProducts } from '../../lib/strapi';
 import { useTabBarScrollHandler } from '../../context/TabBarScrollContext';
@@ -20,7 +19,6 @@ export default function HomeScreen() {
   const { addToCart, totalItems } = useCart();
   const { toggleWishlist, isWishlisted, totalWishlistItems } = useWishlist();
   const { orders, loading: ordersLoading } = useOrderHistory();
-  const { authLoading } = useProfile();
   const [featured, setFeatured] = useState<typeof PRODUCTS>([]);
   const [loadingFeatured, setLoadingFeatured] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
@@ -29,8 +27,6 @@ export default function HomeScreen() {
   const tabBarScrollHandler = useTabBarScrollHandler();
 
   const loadFeatured = useCallback(async (fromRefresh = false) => {
-    if (authLoading) return;
-
     if (fromRefresh) setRefreshing(true);
     else setLoadingFeatured(true);
 
@@ -57,16 +53,14 @@ export default function HomeScreen() {
       if (fromRefresh) setRefreshing(false);
       else setLoadingFeatured(false);
     }
-  }, [authLoading]);
+  }, []);
 
   useEffect(() => {
-    if (authLoading) return;
-
     loadFeatured();
     return () => {
       mountedRef.current = false;
     };
-  }, [authLoading, loadFeatured]);
+  }, [loadFeatured]);
 
   const heroStats = useMemo(
     () => [
@@ -84,7 +78,7 @@ export default function HomeScreen() {
         {...tabBarScrollHandler}
         showsVerticalScrollIndicator={false}
         refreshControl={<RefreshControl refreshing={refreshing} onRefresh={() => loadFeatured(true)} tintColor={colors.primary} />}
-        contentContainerStyle={{ paddingBottom: 32 }}
+        contentContainerStyle={{ paddingBottom: 82 }}
       >
         {/* Hero: keep this focused on discovery and one strong primary action. */}
         <HomeHero colors={colors} heroStats={heroStats} onBrowsePress={() => router.push('/(tabs)/products')} />

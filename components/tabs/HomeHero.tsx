@@ -73,9 +73,7 @@ export default function HomeHero({ colors, heroStats, onBrowsePress }: HomeHeroP
             >
               <Text style={{ fontSize: 10, color: 'white', fontWeight: '700', letterSpacing: 0.8 }}>CW RETAIL</Text>
             </View>
-            <Text style={{ fontSize: 12, color: 'rgba(255,255,255,0.72)', fontWeight: '500', marginBottom: 6 }}>
-              Browse, checkout, and manage store operations in one place
-            </Text>
+           
             <Text style={{ fontSize: 28, fontWeight: '900', color: 'white', letterSpacing: -0.8, lineHeight: 34 }}>
               Retail that feels fast, modern, and ready to sell
             </Text>

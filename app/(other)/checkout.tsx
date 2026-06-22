@@ -1,4 +1,4 @@
-import { ActivityIndicator, KeyboardAvoidingView, Platform, ScrollView, Text, TouchableOpacity, View } from 'react-native';
+import { Alert, KeyboardAvoidingView, Platform, ScrollView } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { useState } from 'react';
@@ -6,15 +6,18 @@ import { useCart } from '../../context/CartContext';
 import { useOrderHistory } from '../../context/OrderHistoryContext';
 import { useProfile } from '../../context/ProfileContext';
 import { useTheme } from '../../context/ThemeContext';
-import { formatPrice } from '../../constants/products';
 import { notifyOrderPlaced } from '../../lib/notifications';
+import { processPaystackCheckout, type PaymentFeedback } from '../../lib/paystackCheckout';
 import FlowScreenHeader from '../../components/flow/FlowScreenHeader';
 import FlowStepper from '../../components/flow/FlowStepper';
 import CheckoutDeliveryStep from '../../components/flow/CheckoutDeliveryStep';
 import CheckoutPaymentStep, { PayMethod } from '../../components/flow/CheckoutPaymentStep';
 import CheckoutReviewStep from '../../components/flow/CheckoutReviewStep';
+import CheckoutPaymentStatusBanner from '../../components/flow/CheckoutPaymentStatusBanner';
+import CheckoutFooter from '../../components/flow/CheckoutFooter';
 
 const STEPS = ['Delivery', 'Payment', 'Review'];
+const INITIAL_PAYMENT_FEEDBACK: PaymentFeedback = { status: 'idle', message: '' };
 
 export default function CheckoutScreen() {
   const router = useRouter();
@@ -24,6 +27,7 @@ export default function CheckoutScreen() {
   const { profile } = useProfile();
   const [step, setStep] = useState(0);
   const [loading, setLoading] = useState(false);
+  const [paymentFeedback, setPaymentFeedback] = useState<PaymentFeedback>(INITIAL_PAYMENT_FEEDBACK);
   const [payMethod, setPayMethod] = useState<PayMethod>('card');
   const [address, setAddress] = useState({ name: '', phone: '', street: '', city: '', state: '' });
   const [card, setCard] = useState({ number: '', expiry: '', cvv: '', name: '' });
@@ -32,36 +36,66 @@ export default function CheckoutScreen() {
   const grand = totalPrice + delivery;
 
   const getPaymentLabel = () => {
-    // Convert the selected payment method into a readable label for order history and receipts.
     if (payMethod === 'transfer') return 'Bank Transfer';
     if (payMethod === 'cash') return 'Pay on Delivery';
-
-    const last4 = card.number.replace(/\s/g, '').slice(-4);
-    return last4 ? `Card •••• ${last4}` : 'Card';
+    return 'Paystack Card';
   };
 
+  const processCardPayment = () =>
+    processPaystackCheckout({
+      amount: grand,
+      email: profile?.email || 'test.customer@easyshoppos.dev',
+      totalItems,
+      customerName: address.name,
+      onFeedback: setPaymentFeedback,
+    });
+
   const handlePlaceOrder = async () => {
-    // Record the order first so checkout history is preserved before navigation clears the cart.
+    if (loading) return;
+
     setLoading(true);
-    const placedOrder = await recordOrder({
-      cart,
-      delivery,
-      paymentMethod: getPaymentLabel(),
-      address,
-    });
 
-    // Fire a user-facing notification so the customer gets immediate feedback after checkout.
-    await notifyOrderPlaced({
-      expoPushToken: profile?.expoPushToken,
-      title: 'Order confirmed',
-      body: `Your order ${placedOrder.id} was placed successfully.`,
-      orderId: placedOrder.id,
-    });
+    try {
+      let paymentMethod = getPaymentLabel();
 
-    await new Promise((resolve) => setTimeout(resolve, 2000));
-    setLoading(false);
-    clearCart();
-    router.replace('/orderSuccess');
+      if (payMethod === 'card') {
+        const payment = await processCardPayment();
+        if (!payment) {
+          return;
+        }
+
+        paymentMethod = `Paystack Card (${payment.reference})`;
+      }
+
+      const placedOrder = await recordOrder({
+        cart,
+        delivery,
+        paymentMethod,
+        address,
+      });
+
+      // Checkout is complete once the verified order is recorded. Notification
+      // delivery is optional and must never block cart clearing or navigation.
+      void notifyOrderPlaced({
+        expoPushToken: profile?.expoPushToken,
+        title: 'Order confirmed',
+        body: `Your order ${placedOrder.id} was placed successfully.`,
+        orderId: placedOrder.id,
+      }).catch((error) => {
+        if (__DEV__) {
+          console.warn('[notifications] order confirmation failed', error);
+        }
+      });
+
+      clearCart();
+      router.replace('/orderSuccess');
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Payment could not be completed.';
+      setPaymentFeedback({ status: 'failed', message: `${message} No order was recorded.` });
+      Alert.alert('Payment failed', message);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -74,12 +108,12 @@ export default function CheckoutScreen() {
           subtitle={`${totalItems} item${totalItems !== 1 ? 's' : ''}`}
         />
 
-        {/* The stepper keeps delivery, payment, and review clearly separated for the user. */}
         <FlowStepper colors={colors} steps={STEPS} currentStep={step} />
 
         <ScrollView contentContainerStyle={{ padding: 16, paddingBottom: 32 }} showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled">
+          <CheckoutPaymentStatusBanner colors={colors} feedback={paymentFeedback} />
+
           {step === 0 && (
-            // Step 1 collects the delivery address and calculates shipping.
             <CheckoutDeliveryStep
               colors={colors}
               delivery={delivery}
@@ -88,7 +122,6 @@ export default function CheckoutScreen() {
             />
           )}
           {step === 1 && (
-            // Step 2 captures the chosen payment method and card details when needed.
             <CheckoutPaymentStep
               colors={colors}
               total={grand}
@@ -99,7 +132,6 @@ export default function CheckoutScreen() {
             />
           )}
           {step === 2 && (
-            // Step 3 presents the final review before the order is recorded.
             <CheckoutReviewStep
               colors={colors}
               cart={cart}
@@ -111,34 +143,15 @@ export default function CheckoutScreen() {
           )}
         </ScrollView>
 
-        <View style={{ padding: 16, backgroundColor: colors.card, borderTopWidth: 0.5, borderTopColor: colors.border }}>
-          {step < 2 ? (
-            <TouchableOpacity
-              onPress={() => setStep((current) => current + 1)}
-              style={{ backgroundColor: colors.primary, borderRadius: 14, paddingVertical: 16, alignItems: 'center' }}
-              activeOpacity={0.85}
-            >
-              <Text style={{ color: 'white', fontWeight: '700', fontSize: 16, letterSpacing: -0.2 }}>
-                {step === 0 ? 'Continue to Payment' : 'Review Order'}
-              </Text>
-            </TouchableOpacity>
-          ) : (
-            <TouchableOpacity
-              onPress={handlePlaceOrder}
-              disabled={loading}
-              style={{ backgroundColor: colors.green, borderRadius: 14, paddingVertical: 16, alignItems: 'center', opacity: loading ? 0.8 : 1 }}
-              activeOpacity={0.85}
-            >
-              {loading ? (
-                <ActivityIndicator color="white" />
-              ) : (
-                <Text style={{ color: 'white', fontWeight: '700', fontSize: 16, letterSpacing: -0.2 }}>
-                  Place Order · {formatPrice(grand)}
-                </Text>
-              )}
-            </TouchableOpacity>
-          )}
-        </View>
+        <CheckoutFooter
+          colors={colors}
+          step={step}
+          loading={loading}
+          grandTotal={grand}
+          payMethod={payMethod}
+          onNext={() => setStep((current) => current + 1)}
+          onPlaceOrder={handlePlaceOrder}
+        />
       </KeyboardAvoidingView>
     </SafeAreaView>
   );

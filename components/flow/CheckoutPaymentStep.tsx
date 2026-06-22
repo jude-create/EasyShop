@@ -1,7 +1,6 @@
 import { Text, View } from 'react-native';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import type { AppColors } from '../../context/ThemeContext';
-import FlowTextField from './FlowTextField';
 import FlowOptionRow from './FlowOptionRow';
 import { formatPrice } from '../../constants/products';
 
@@ -24,7 +23,7 @@ interface CheckoutPaymentStepProps {
 }
 
 const OPTIONS: { key: PayMethod; icon: keyof typeof Ionicons.glyphMap; label: string; description: string }[] = [
-  { key: 'card', icon: 'card-outline', label: 'Debit / Credit Card', description: 'Visa, Mastercard, Verve' },
+  { key: 'card', icon: 'card-outline', label: 'Debit / Credit Card', description: 'Secure Paystack test checkout' },
   { key: 'transfer', icon: 'swap-horizontal-outline', label: 'Bank Transfer', description: 'Pay via bank transfer' },
   { key: 'cash', icon: 'cash-outline', label: 'Pay on Delivery', description: 'Cash on delivery' },
 ];
@@ -34,17 +33,7 @@ export default function CheckoutPaymentStep({
   total,
   payMethod,
   onPayMethodChange,
-  card,
-  onCardChange,
 }: CheckoutPaymentStepProps) {
-  const formatCard = (v: string) =>
-    v.replace(/\D/g, '').slice(0, 16).replace(/(.{4})/g, '$1 ').trim();
-
-  const formatExpiry = (v: string) => {
-    const digits = v.replace(/\D/g, '').slice(0, 4);
-    return digits.length > 2 ? `${digits.slice(0, 2)}/${digits.slice(2)}` : digits;
-  };
-
   return (
     <View>
       <Text style={{ fontSize: 18, fontWeight: '700', color: colors.text, marginBottom: 16, letterSpacing: -0.3 }}>
@@ -66,52 +55,23 @@ export default function CheckoutPaymentStep({
       </View>
 
       {payMethod === 'card' && (
-        <View style={{ backgroundColor: colors.card, borderRadius: 16, padding: 16, borderWidth: 0.5, borderColor: colors.border }}>
-          <Text style={{ fontSize: 14, fontWeight: '700', color: colors.text, marginBottom: 14 }}>
-            Card Details
+        <View style={{ backgroundColor: colors.card, borderRadius: 16, padding: 16, borderWidth: 0.5, borderColor: colors.border, gap: 10 }}>
+          <View style={{ flexDirection: 'row', gap: 10, alignItems: 'center' }}>
+            <Ionicons name="shield-checkmark-outline" size={22} color={colors.primary} />
+            <Text style={{ fontSize: 14, fontWeight: '700', color: colors.text }}>
+              Secure Paystack Test Checkout
+            </Text>
+          </View>
+          <Text style={{ fontSize: 13, color: colors.textSecondary, lineHeight: 19 }}>
+            Your order is created only after Paystack verifies a successful transaction.
           </Text>
-          <View style={{ gap: 14 }}>
-            <FlowTextField
-              colors={colors}
-              label="Card Number"
-              value={card.number}
-              placeholder="0000 0000 0000 0000"
-              keyboardType="number-pad"
-              maxLength={19}
-              onChangeText={(number) => onCardChange({ ...card, number: formatCard(number) })}
-            />
-            <View style={{ flexDirection: 'row', gap: 12 }}>
-              <View style={{ flex: 1 }}>
-                <FlowTextField
-                  colors={colors}
-                  label="Expiry"
-                  value={card.expiry}
-                  placeholder="MM/YY"
-                  keyboardType="number-pad"
-                  maxLength={5}
-                  onChangeText={(expiry) => onCardChange({ ...card, expiry: formatExpiry(expiry) })}
-                />
-              </View>
-              <View style={{ flex: 1 }}>
-                <FlowTextField
-                  colors={colors}
-                  label="CVV"
-                  value={card.cvv}
-                  placeholder="•••"
-                  keyboardType="number-pad"
-                  secureTextEntry
-                  maxLength={3}
-                  onChangeText={(cvv) => onCardChange({ ...card, cvv: cvv.replace(/\D/g, '').slice(0, 3) })}
-                />
-              </View>
-            </View>
-            <FlowTextField
-              colors={colors}
-              label="Cardholder Name"
-              value={card.name}
-              placeholder="JOHN DOE"
-              onChangeText={(name) => onCardChange({ ...card, name })}
-            />
+          <View style={{ backgroundColor: colors.subtle, borderRadius: 12, padding: 12, gap: 4 }}>
+            <Text style={{ fontSize: 12, fontWeight: '700', color: colors.text }}>
+              Test amount
+            </Text>
+            <Text style={{ fontSize: 14, color: colors.text }}>
+              {formatPrice(total)}
+            </Text>
           </View>
         </View>
       )}

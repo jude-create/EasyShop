@@ -7,8 +7,10 @@ EasyShop POS is an Expo React Native shopping app for browsing live products, ma
 - Firebase email/password and Google sign-in
 - Persistent auth session with a startup session check
 - Live products, categories, and featured products from Strapi
+- Automatic catalog retries, request deduplication, and five-minute in-memory caching
 - Product detail pages with stock, pricing, badges, and images
-- Cart, wishlist, checkout, and order success flows
+- Cart, wishlist, Paystack test checkout, and order success flows
+- Server-side Paystack initialization and payment verification
 - Saved addresses and order history synced to Strapi
 - Profile data synced between Firebase and Strapi
 - Expo push notification setup with Android notification channel
@@ -19,15 +21,15 @@ EasyShop POS is an Expo React Native shopping app for browsing live products, ma
 ## Screenshots
 
 <p>
-  <img src="assets/Screenshots/Home_screen.jpg" alt="Home screen" width="220" />
-  <img src="assets/Screenshots/Products.jpg" alt="Products screen" width="220" />
-  <img src="assets/Screenshots/Product%20_detail.jpg" alt="Product detail screen" width="220" />
+  <img src="assets/Screenshots/Home_screen.png" alt="Home screen" width="220" />
+  <img src="assets/Screenshots/Products.png" alt="Products screen" width="220" />
+  <img src="assets/Screenshots/Product%20_detail.png" alt="Product detail screen" width="220" />
 </p>
 
 <p>
-  <img src="assets/Screenshots/Cart.jpg" alt="Cart screen" width="220" />
-  <img src="assets/Screenshots/Wishlist%20.jpg" alt="Wishlist screen" width="220" />
-  <img src="assets/Screenshots/Profile.jpg" alt="Profile screen" width="220" />
+  <img src="assets/Screenshots/Cart.png" alt="Cart screen" width="220" />
+  <img src="assets/Screenshots/Wishlist.png" alt="Wishlist screen" width="220" />
+  <img src="assets/Screenshots/Profile.png" alt="Profile screen" width="220" />
 </p>
 
 ## Tech Stack
@@ -36,8 +38,10 @@ EasyShop POS is an Expo React Native shopping app for browsing live products, ma
 - React Native 0.81
 - Expo Router
 - Firebase Authentication
+- React Native Firebase
 - Google Sign-In
 - Strapi 5
+- Paystack
 - Expo Notifications
 - AsyncStorage
 - Jest for tests
@@ -47,16 +51,18 @@ EasyShop POS is an Expo React Native shopping app for browsing live products, ma
 ```text
 Strapi Admin -> Strapi API -> Expo Mobile App
                     |              |
-                    v              v
-              Backend content   Firebase Auth
+                    |              +-> Firebase Auth
+                    |              +-> AsyncStorage cache
                     |
-                    v
-              PostgreSQL-ready data layer
+                    +-> Paystack API
+                    +-> PostgreSQL-ready data layer
 ```
 
 - Strapi manages products, categories, profiles, saved addresses, and orders.
 - Firebase owns authentication and restores the signed-in user on app launch.
-- The app caches user-facing data locally so screens can render smoothly.
+- Firebase session readiness does not wait for slower profile or notification work.
+- Catalog requests retry transient failures automatically and share fresh results between Home and Products.
+- Paystack secret-key operations run in Strapi; the mobile app never contains the secret key.
 - Expo Notifications registers push tokens and stores them on user profiles.
 
 ## Project Structure
@@ -93,6 +99,12 @@ EXPO_PUBLIC_STRAPI_URL=http://10.0.2.2:1337
 ```
 
 For a physical device, use your computer's LAN IP instead of `localhost`.
+
+Configure the Paystack secret key in the Strapi backend environment, never in the Expo app:
+
+```env
+PAYSTACK_SECRET_KEY=sk_test_your_paystack_test_secret
+```
 
 ### 3. Start the App in Development
 
@@ -183,6 +195,18 @@ Recommended `orders` fields:
 - `paymentMethod`
 - `address`
 
+## Payments
+
+Card checkout uses Paystack test mode:
+
+1. The mobile app asks Strapi to initialize a transaction.
+2. Strapi calls Paystack using the backend-only secret key.
+3. The app opens Paystack's hosted checkout.
+4. After authentication, the app verifies the reference through Strapi.
+5. An order is recorded only after Paystack confirms the payment and amount.
+6. The cart clears and the Order Success screen opens immediately after the order is recorded.
+
+
 ## Firebase Setup
 
 The app expects Firebase Authentication to be configured for:
@@ -213,6 +237,7 @@ In development, the Profile screen shows a notification debug card with the curr
 Run these before sharing a build:
 
 ```bash
+npx tsc --noEmit
 npm run lint
 npm test
 ```
@@ -225,6 +250,8 @@ This project demonstrates:
 - Auth restoration and protected app navigation
 - Real CMS/API integration
 - Local persistence plus backend sync
+- Backend-verified hosted payments
+- Resilient catalog loading with retry and cache behavior
 - Reusable component architecture
 - Push notification setup
 - Theme-aware UI
@@ -233,11 +260,10 @@ This project demonstrates:
 ## Future Improvements
 
 - Admin analytics dashboard
-- Payment gateway integration
+- Production Paystack keys, webhooks, and server-side payment reconciliation
 - Order tracking updates from backend status changes
-- More complete offline mode
-- End-to-end tests for auth and checkout
+
 
 ## License
 
-
+This project is for learning and portfolio use.
